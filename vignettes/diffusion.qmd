@@ -1,0 +1,54 @@
+---
+title: "Diffusion"
+format: html
+bibliography: diffusion_references.bib
+toc: true
+crossref:
+  eq-prefix: Eq.
+vignette: >
+  %\VignetteIndexEntry{Diffusion}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r}
+#| message: false
+#| warning: false
+library(mizerEcopath)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+```
+
+# The jump-growth equation {#sec-jump-growth}
+
+As was observed in [@datta2010], the variability in prey size leads to a diffusion term in the PDE for the abundance density $N(w,t)$. This term is neglected in mizer but will become important when matching mizer abundances to observed abundances, because it will account for fish that are larger than average. The PDE including the diffusion term is
+$$
+\frac{\partial N}{\partial t} = \frac12 \frac{\partial^2}{\partial w^2}(d N) - \frac{\partial}{\partial w}(g N)-\mu N-e
+$$ {#eq-PDE}
+where $g$ is the growth rate, $\mu$ is the death rate, $e$ is an emigration rate and $d$ is a new diffusion rate.
+
+The diffusion rate has an expression that is similar to that of the growth rate. Recall that the growth rate is given by
+$$
+\begin{split}
+g(w)=&(1-f(w))\,\gamma(w)\int N_c(w_p)\phi(w/w_p)\alpha\,(1-\psi(w)) w_p\,dw_p\\
+&- K(w)(1-\psi(w)),
+\end{split}
+$$ {#eq-gw}
+where $N_c(w)$ is the abundance density of prey, $\phi(w/w_p)$ is the predation kernel, $\gamma(w)$ is the search volume, $f(w)$ is the feeding level, $K(w)$ is the metabolic respiration rate, $\alpha$ is the conversion efficiency and $\psi(w)$ is the proportion of available energy that is invested into reproduction. Because the metabolic respiration loss is subtracted from the available energy before that is split into growth and reproduction, only a proportion $1-\psi$ of the metabolic rate is subtracted from the growth rate.
+
+The factor $\alpha (1- \psi(w))w_p$ in the integral in @eq-gw is the increase in somatic weight of the predator resulting from the ingestion of the prey of weight $w_p$. In the expression for the diffusion rate $d(w)$ this factor is squared:
+$$
+d(w) = (1-f(w))\,\gamma(w) \int N_c(w_p)\phi(w/w_p)(\alpha\,(1-\psi(w)) w_p)^2\,dw_p.
+$$ {#eq-dw}
+The loss due to metabolic respiration affects the growth rate but not the diffusion rate. In the derivation of the PDE @eq-PDE in [@datta2010] the metabolic respiration was not discussed but its contribution to only the first-order derivative term can be found in [@capitan2010].
+
+The increase $\alpha (1- \psi(w))w_p$ in predator mass is typically only a small proportion of the predator mass because the preferred prey are typically much smaller than the predator and also $\alpha$ and $1-\psi(w)$ are both smaller than $1$. Because this factor is squared in the expression for $d(w)$ it might be expected that the term in the PDE involving $d(w)$ can be safely neglected. However it is worth testing this intuition. We will do this now by first determining the diffusion rate in a model with allometric growth and death rates. We will then use that to determine its effect on the slope of the juvenile spectrum. Finally we will look at the numerical solution for the steady state.
+
