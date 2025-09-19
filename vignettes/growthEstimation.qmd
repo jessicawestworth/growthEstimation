@@ -1,0 +1,9 @@
+---
+title: "Estimating growth rates from age-at-size data"
+vignette: >
+  %\VignetteIndexEntry{Estimating growth rates from age-at-size data}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+I still need to write this vignette.

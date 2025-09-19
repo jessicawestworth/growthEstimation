@@ -1,4 +1,5 @@
-#' Plot Signed Negative Log-Likelihood Contributions with Mean K Lines
+#' Plot signed log-likelihood contributions with mean K lines
+#'
 #' Creates a heatmap of the signed contribution of each cell to the NLL,
 #' and overlays the mean observed and expected K values.
 #' @param contributions_df A data frame from calculate_and_aggregate_likelihood.

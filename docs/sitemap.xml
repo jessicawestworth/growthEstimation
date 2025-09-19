@@ -1,6 +1,7 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
 <url><loc>/404.html</loc></url>
 <url><loc>/articles/age_simulation.html</loc></url>
+<url><loc>/articles/growthEstimation.html</loc></url>
 <url><loc>/articles/index.html</loc></url>
 <url><loc>/articles/length_to_weight.html</loc></url>
 <url><loc>/articles/numerical_scheme.html</loc></url>

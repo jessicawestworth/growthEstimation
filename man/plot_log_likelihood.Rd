@@ -2,9 +2,7 @@
 % Please edit documentation in R/plotAge.R
 \name{plot_log_likelihood}
 \alias{plot_log_likelihood}
-\title{Plot Signed Negative Log-Likelihood Contributions with Mean K Lines
-Creates a heatmap of the signed contribution of each cell to the NLL,
-and overlays the mean observed and expected K values.}
+\title{Plot signed log-likelihood contributions with mean K lines}
 \usage{
 plot_log_likelihood(contributions_df)
 }
@@ -15,7 +13,6 @@ plot_log_likelihood(contributions_df)
 A ggplot object.
 }
 \description{
-Plot Signed Negative Log-Likelihood Contributions with Mean K Lines
 Creates a heatmap of the signed contribution of each cell to the NLL,
 and overlays the mean observed and expected K values.
 }
