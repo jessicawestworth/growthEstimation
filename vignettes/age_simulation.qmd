@@ -1,4 +1,5 @@
 ---
+title: "Modelling of age-at-size data"
 vignette: >
   %\VignetteIndexEntry{Modelling of age-at-size data}
   %\VignetteEngine{knitr::rmarkdown}
