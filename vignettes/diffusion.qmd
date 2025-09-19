@@ -1,54 +1,105 @@
 ---
-title: "Diffusion"
-format: html
-bibliography: diffusion_references.bib
-toc: true
-crossref:
-  eq-prefix: Eq.
+title: "Numerical scheme for solving PDE"
 vignette: >
   %\VignetteIndexEntry{Diffusion}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
+Here we describe the numerical scheme we use for solving the PDE for the fish
+abundance and show that it is unconditionally stable.
 
-```{r, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
-)
-```
-
-```{r}
-#| message: false
-#| warning: false
-library(mizerEcopath)
-library(ggplot2)
-library(tidyr)
-library(dplyr)
-```
-
-# The jump-growth equation {#sec-jump-growth}
-
-As was observed in [@datta2010], the variability in prey size leads to a diffusion term in the PDE for the abundance density $N(w,t)$. This term is neglected in mizer but will become important when matching mizer abundances to observed abundances, because it will account for fish that are larger than average. The PDE including the diffusion term is
+The PDE is:
 $$
-\frac{\partial N}{\partial t} = \frac12 \frac{\partial^2}{\partial w^2}(d N) - \frac{\partial}{\partial w}(g N)-\mu N-e
-$$ {#eq-PDE}
-where $g$ is the growth rate, $\mu$ is the death rate, $e$ is an emigration rate and $d$ is a new diffusion rate.
-
-The diffusion rate has an expression that is similar to that of the growth rate. Recall that the growth rate is given by
+\frac{\partial u}{\partial t} + \frac{\partial J}{\partial l} = - \mu u
 $$
-\begin{split}
-g(w)=&(1-f(w))\,\gamma(w)\int N_c(w_p)\phi(w/w_p)\alpha\,(1-\psi(w)) w_p\,dw_p\\
-&- K(w)(1-\psi(w)),
-\end{split}
-$$ {#eq-gw}
-where $N_c(w)$ is the abundance density of prey, $\phi(w/w_p)$ is the predation kernel, $\gamma(w)$ is the search volume, $f(w)$ is the feeding level, $K(w)$ is the metabolic respiration rate, $\alpha$ is the conversion efficiency and $\psi(w)$ is the proportion of available energy that is invested into reproduction. Because the metabolic respiration loss is subtracted from the available energy before that is split into growth and reproduction, only a proportion $1-\psi$ of the metabolic rate is subtracted from the growth rate.
-
-The factor $\alpha (1- \psi(w))w_p$ in the integral in @eq-gw is the increase in somatic weight of the predator resulting from the ingestion of the prey of weight $w_p$. In the expression for the diffusion rate $d(w)$ this factor is squared:
+with the flux
 $$
-d(w) = (1-f(w))\,\gamma(w) \int N_c(w_p)\phi(w/w_p)(\alpha\,(1-\psi(w)) w_p)^2\,dw_p.
-$$ {#eq-dw}
-The loss due to metabolic respiration affects the growth rate but not the diffusion rate. In the derivation of the PDE @eq-PDE in [@datta2010] the metabolic respiration was not discussed but its contribution to only the first-order derivative term can be found in [@capitan2010].
+J = k (L_\infty - l) u - \frac{1}{2} \frac{\partial(d l u)}{\partial l}
+$$
+and mortality rate $\mu = m / l$.
 
-The increase $\alpha (1- \psi(w))w_p$ in predator mass is typically only a small proportion of the predator mass because the preferred prey are typically much smaller than the predator and also $\alpha$ and $1-\psi(w)$ are both smaller than $1$. Because this factor is squared in the expression for $d(w)$ it might be expected that the term in the PDE involving $d(w)$ can be safely neglected. However it is worth testing this intuition. We will do this now by first determining the diffusion rate in a model with allometric growth and death rates. We will then use that to determine its effect on the slope of the juvenile spectrum. Finally we will look at the numerical solution for the steady state.
+## Advection-diffusion-reaction PDE
 
+First, we rewrite the PDE in a standard advection-diffusion-reaction form.
+Expanding the flux term gives:
+$$
+J = \left(k (L_\infty - l) - \frac{d}{2}\right) u - \frac{dl}{2} \frac{\partial u}{\partial l}.
+$$
+This allows us to identify a size-dependent advection velocity $v(l)$ and diffusion coefficient $D(l)$:
+
+* **Advection velocity**: $v(l) = k (L_\infty - l) - \frac{d}{2}$
+* **Diffusion coefficient**: $D(l) = \frac{dl}{2}$
+
+The PDE becomes
+$$
+\frac{\partial u}{\partial t} + \frac{\partial}{\partial l} \left( v(l) u - D(l) \frac{\partial u}{\partial l} \right) = - \mu(l) u.
+$$
+
+## Discretization
+
+We discretize the spatial domain into cells of uniform width $\Delta l$, with cell centers at $l_i$. Using a finite volume method with implicit (Backward Euler) time-stepping for unconditional stability gives:
+$$\frac{u_i^{n+1} - u_i^n}{\Delta t} + \frac{J_{i+1/2}^{n+1} - J_{i-1/2}^{n+1}}{\Delta l} = - \mu_i u_i^{n+1}$$
+where the superscript $n$ denotes the time step.
+
+The flux $J_{i+1/2}^{n+1}$ is discretized using a first-order upwind scheme for advection and a central difference for diffusion:
+$$J_{i+1/2}^{n+1} = \left( v_{i+1/2}^+ u_i^{n+1} + v_{i+1/2}^- u_{i+1}^{n+1} \right) - D_{i+1/2} \frac{u_{i+1}^{n+1} - u_i^{n+1}}{\Delta l}$$
+where $v^+ = \max(v, 0)$ and $v^- = \min(v, 0)$.
+
+## The Linear System
+
+Substituting the flux into the discrete equation yields a tridiagonal linear system for the unknown vector $\mathbf{u}^{n+1}$:
+$$A \mathbf{u}^{n+1} = \mathbf{u}^n$$
+The non-zero entries of the matrix $A$ for each row $i$ are:
+
+* **Sub-diagonal**: $A_{i, i-1} = -\frac{\Delta t}{\Delta l} \left( v_{i-1/2}^+ + \frac{D_{i-1/2}}{\Delta l} \right)$
+* **Diagonal**: $A_{i, i} = 1 + \Delta t \mu_i + \frac{\Delta t}{\Delta l} \left( v_{i+1/2}^+ - v_{i-1/2}^- \right) + \frac{\Delta t}{(\Delta l)^2} \left( D_{i+1/2} + D_{i-1/2} \right)$
+* **Super-diagonal**: $A_{i, i+1} = \frac{\Delta t}{\Delta l} \left( v_{i+1/2}^- - \frac{D_{i+1/2}}{\Delta l} \right)$
+
+## Boundary Conditions
+
+The boundary conditions modify the first and last rows of the matrix $A$.
+
+1.  **No-Flux at $l_0=0$**: This condition applies to the interface at $l_{1/2}$. In the equation for the first cell ($i=1$), we set the incoming flux $J_{1/2}^{n+1} = 0$. This eliminates any dependence on a $u_0$ term and modifies the coefficients $A_{1,1}$ and $A_{1,2}$ for the first row of the system.
+
+2.  **Dirichlet at $l_{max}$**: The condition $u(l_{max}, t)=0$ is imposed at the right-most interface, $l_{N_l+1/2}$. This is handled by introducing a "ghost cell" ($i=N_l+1$) and setting its concentration $u_{N_l+1}^{n+1} = 0$ for all time steps. This value is then used to calculate the outgoing flux $J_{N_l+1/2}^{n+1}$ in the equation for the last cell ($i=N_l$), modifying the final row of the system.
+
+## Solving with the Thomas Algorithm
+
+This tri-diagonal system is solved efficiently in O(N) time using the Thomas algorithm, a simplified form of Gaussian elimination. Let the system for a generic vector $\mathbf{x}$ be written as $a_{i-1}x_{i-1} + b_i x_i + c_i x_{i+1} = d_i$. The algorithm consists of two sweeps:
+
+1.  **Forward Elimination**: The goal is to eliminate the sub-diagonal terms ($a_i$). We compute modified coefficients for the super-diagonal ($c'$) and the right-hand side ($d'$) vectors.
+    * For the first row ($i=1$):
+        $$c'_1 = \frac{c_1}{b_1} \quad \text{and} \quad d'_1 = \frac{d_1}{b_1}$$
+    * For subsequent rows ($i = 2, ..., N$):
+        $$m = b_i - a_{i-1} c'_{i-1}$$
+        $$c'_i = \frac{c_i}{m} \quad \text{and} \quad d'_i = \frac{d_i - a_{i-1} d'_{i-1}}{m}$$
+    This transforms the system into an upper bidiagonal form: $x_i + c'_i x_{i+1} = d'_i$.
+
+2.  **Backward Substitution**: The solution vector $\mathbf{x}$ is found by sweeping backwards from the last row.
+    * For the last row ($i=N$):
+        $$x_N = d'_N$$
+    * For preceding rows ($i = N-1, ..., 1$):
+        $$x_i = d'_i - c'_i x_{i+1}$$
+
+This method is numerically stable for diagonally dominant matrices, which is the case for this implicit scheme.
+
+## Stability Analysis
+
+The stability of this method is demonstrated using **von Neumann stability analysis** with frozen coefficients. The **amplification factor** $G = \hat{u}^{n+1}/\hat{u}^n$ for a Fourier mode must satisfy $|G| \le 1$ for stability. It is given by:
+$$G = \frac{1}{A_{i,i-1} e^{-i \phi} + A_{i,i} + A_{i,i+1} e^{i \phi}}$$
+where $\phi = k_w \Delta l$ is the phase angle and $k_w$ is the wavenumber.
+
+The denominator of G, $D_G$, can be shown to be:
+$$D_G = 1 + \Delta t \mu + \frac{\Delta t}{\Delta l} \left( |v| - v\cos\phi \right) + \frac{2 \Delta t D}{(\Delta l)^2} \left( 1 - \cos\phi \right) + i \frac{\Delta t v}{\Delta l} \sin\phi$$
+
+The real part of the denominator is:
+$$\text{Re}(D_G) = 1 + \Delta t \mu + \frac{\Delta t}{\Delta l} \underbrace{\left( |v| - v\cos\phi \right)}_{\ge 0} + \frac{2 \Delta t D}{(\Delta l)^2} \underbrace{\left( 1 - \cos\phi \right)}_{\ge 0}$$
+Since $\mu \ge 0$, $D \ge 0$, and the indicated terms are always non-negative, it follows that $\text{Re}(D_G) \ge 1$.
+
+The magnitude squared of the denominator is $|D_G|^2 = (\text{Re}(D_G))^2 + (\text{Im}(D_G))^2$. Since $\text{Re}(D_G) \ge 1$, we have:
+$$|D_G|^2 \ge 1^2 = 1$$
+Therefore, the amplification factor $|G| = 1/|D_G| \le 1$. This holds for any choice of $\Delta t > 0$ and $\Delta l > 0$, meaning the scheme is **unconditionally stable**, even when diffusion is zero ($d=0$).
+
+## Green's function
+
+The Green's function is obtained by setting an initial condition where all individuals are in the smallest size class: $u_1^0 = 1$ and $u_i^0 = 0$ for $i > 1$.
