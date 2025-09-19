@@ -1,0 +1,134 @@
+---
+title: "Conversion from length to weight"
+vignette: >
+  %\VignetteIndexEntry{Conversion from length to weight}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+### **Objective**
+
+To convert the PDE for a density $u(l,t)$ as a function of the length $l$ of individuals into a PDE for a density $N(w,t)$ as a function of the weight $w$ of individuals, using the transformation $w = a l^b$.
+
+---
+
+### **1. Initial Equations**
+
+The PDE for the density $u(l,t)$ as a function of length is:
+$$
+\frac{\partial u}{\partial t} = - \frac{\partial J}{\partial l} - \frac{m}{l} u
+$$
+where the flux $J$ is
+$$
+J = k (L_\infty  - l) u - \frac{\partial (d l u)}{\partial l}.
+$$
+Here $k, L_\infty, c$ and $m$ are the model parameters.
+
+---
+
+### **2. Transformation of Variables and Densities**
+
+We want to transform to weight using $w = a l^b$. We can express $l$ in terms of $w$ as
+$$
+l = \left(\frac{w}{a}\right)^{1/b}.
+$$
+The Jacobian of this variable transformation is
+$$
+\frac{dw}{dl} = ab l^{b-1}.
+$$
+Densities are related by the conservation of probability, $u(l,t) \, dl = N(w,t) \, dw$, which gives that
+$$
+u = N \frac{dw}{dl} = N (ab l^{b-1}).
+$$
+
+---
+
+### **3. Transformation of the PDE Structure**
+
+The original PDE is a conservation law, $\frac{\partial u}{\partial t} + \frac{\partial J}{\partial l} = - \frac{m}{l} u$. Using the chain rule, this structure transforms to
+$$
+\frac{\partial N}{\partial t} + \frac{\partial J}{\partial w} = - \frac{m}{l} N.
+$$
+Our goal is now to express the flux $J$ and the sink term entirely in terms of $w, N,$ and their derivatives. The transformed sink term is
+$$
+- \frac{m}{l} N = -m \left(\frac{w}{a}\right)^{-1/b} N = -m a^{1/b} w^{-1/b} N.
+$$
+
+---
+
+### **4. Deriving and Rewriting the Flux J(w)**
+
+We substitute $u = N \frac{dw}{dl}$ into the original expression for $J$:
+$$
+J = k (L_\infty  - l) N \frac{dw}{dl} - \frac{\partial}{\partial l} \left(d l N \frac{dw}{dl} \right).
+$$
+Using the identity $l \frac{dw}{dl} = l(ab l^{b-1}) = ab l^b = bw$, the term in the derivative becomes $c b w N$. We then apply the chain rule $\frac{\partial}{\partial l} = \frac{dw}{dl}\frac{\partial}{\partial w}$:
+$$
+J = k (L_\infty  - l) N \frac{dw}{dl} - \frac{dw}{dl} \frac{\partial (d b w N)}{\partial w}.
+$$
+Factoring out the Jacobian $\frac{dw}{dl}$ gives
+$$
+J = \frac{dw}{dl} \left[ k (L_\infty  - l) N - \frac{\partial (d b w N)}{\partial w} \right].
+$$
+Now, substitute $l = \left(\frac{w}{a}\right)^{1/b}$ and $\frac{dw}{dl} = ab l^{b-1} = a^{1/b} b w^{(b-1)/b}$ and let $n = 1-1/b = (b-1)/b$. This gives
+$$
+J(w) = \left( a^{1/b} b w^n \right) \left[ k \left(L_\infty  - \left(\frac{w}{a}\right)^{1/b}\right) N - \frac{\partial (d b w N)}{\partial w} \right].
+$$
+
+Next, we fully expand our expression for $J(w)$:
+$$
+J(w) = \left[ (a^{1/b} b k L_\infty ) w^n N - (b k w) N \right] - \left( a^{1/b} b w^n \right) \frac{\partial (d b w N)}{\partial w}.
+$$
+Expanding the derivative and distributing the pre-factor gives
+$$
+J(w) = (a^{1/b} b k L_\infty ) w^n N - (b k w) N - (a^{1/b} d b^2) w^n N - (a^{1/b} d b^2) w^{n+1} \frac{\partial N}{\partial w}.
+$$
+Combining terms that multiply $N$, we get our fully expanded derived flux
+$$
+J(w) = \left[ (a^{1/b} b k L_\infty  - a^{1/b} d b^2) w^n - (b k) w \right] N - (a^{1/b} d b^2) w^{n+1} \frac{\partial N}{\partial w}.
+$$
+
+We would like to write this flux in the simplfied form
+$$
+J_{target} = (A w^n - B w) N - \frac{\partial(D w^{n+1} N)}{\partial w},
+$$
+where the new parameters $A,B$ and $D$ should be expressed in terms of the old parameters $k,L_\infty$ and $d$ and the new exponent $n$ should be expressed in terms of the exponent $b$. We expand this target form using the chain rule on the derivative to get
+$$
+\begin{split}
+J_{target} &= (A w^n - B w) N - \left( D(n+1)w^n N + D w^{n+1} \frac{\partial N}{\partial w} \right)\\
+&= \left[ (A - D(n+1)) w^n - B w \right] N - D w^{n+1} \frac{\partial N}{\partial w}.
+\end{split}
+$$
+By equating the coefficients of the derived form and the target form, we find the constants:
+
+1.  From the $\frac{\partial N}{\partial w}$ term: $$D w^{n+1} = (a^{1/b} c b^2) w^{n+1} \implies D = a^{1/b} c b^2.$$
+2.  From the $wN$ term: $$B w = (b k) w \implies B = bk.$$
+3.  From the $w^n N$ term: $$A - D(n+1) = a^{1/b} b k L_\infty  - a^{1/b} c b^2$$
+    implies
+    $$\begin{split}
+    A &= a^{1/b} b k L_\infty  - a^{1/b} c b^2 + D(n+1)\\
+    &= a^{1/b} b k L_\infty  - a^{1/b} c b^2 + (a^{1/b} c b^2)(n+1) \\
+    &= a^{1/b} b k L_\infty  + n(a^{1/b} c b^2)\\
+    &=a^{1/b}\left(b k L_\infty  + n  c b^2\right).
+    \end{split}$$
+
+---
+
+### **5. Final Result**
+
+The transformed PDE is 
+$$
+\frac{\partial N}{\partial t} = - \frac{\partial J}{\partial w} - \frac{m}{l} N.
+$$
+Substituting the rewritten flux and the transformed sink term yields the final equation:
+$$
+\frac{\partial N}{\partial t} = - \frac{\partial}{\partial w} \left[ (A w^n - B w) N - \frac{\partial(D w^{n+1} N)}{\partial w} \right] - M w^{n-1} N,
+$$
+where the constants are defined as:
+$$\begin{split}
+n &= 1 - 1/b\\
+A &= a^{1/b}\left(b k L_\infty  + n  c b^2\right)\\
+B &= b k\\
+D &= a^{1/b} c b^2\\
+M &= a^{1/b}m
+\end{split}$$
