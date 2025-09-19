@@ -79,8 +79,7 @@ calculate_K <- function(age_in_years, survey_date, annuli_date, annuli_min_age) 
 #' Calculates the probability P(K | length) that a fish in a given length class
 #' is observed with K annuli.
 #' @param survey_date Numeric survey date (e.g., 2023.25).
-#' @param G Impulse-response matrix from the single-cohort simulation
-#'   (rows = ages, cols = length classes).
+#' @param G Greens function matrix (rows = ages, cols = length classes).
 #' @param a Numeric vector of high-resolution ages corresponding to rows of `G`.
 #' @param l Numeric vector of lengths corresponding to columns of `G`.
 #' @param mu Mean spawning date as a fraction of a year in \[0, 1).

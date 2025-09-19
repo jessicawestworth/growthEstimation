@@ -74,24 +74,18 @@ plot_log_likelihood <- function(contributions_df) {
 
 #' Plot the likelihood of the observed age at length data
 #'
-#' @param params A `mizer::MizerParams` object.
-#' @param species Species name as in `species_params(params)$species`.
+#' @param pars A list of parameters
 #' @param age_at_length Data frame of raw age-at-length observations; will be
 #'   preprocessed internally by `preprocess_length_at_age()`.
 #' @return A `ggplot2` object suitable for display in Shiny or saving.
 #' @export
 #' @examples
 #' # In practice provide a real `age_at_length` table for the species
-#' # p <- plotAge(params, species = "Cod", age_at_length = df)
-plotAgeLikelihood <- function(params, species, age_at_length) {
-    params <- validParams(params)
-    species <- valid_species_arg(params, species)
-
-    # Preprocess observed data
-    observed_df <- preprocess_length_at_age(params, species, age_at_length)
+#' # p <- plotAge(pars, age_at_length = df)
+plotAgeLikelihood <- function(pars, age_at_length) {
 
     # Simulate age data
-    logLik <- getLogLik(params, species, observed_df)
+    logLik <- getLogLik(pars, age_at_length)
 
     # Calculate and plot residuals
     plot_log_likelihood(logLik)

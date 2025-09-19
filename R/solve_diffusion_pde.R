@@ -1,113 +1,161 @@
-#' Project forward in time with diffusion
+#' Solve a tridiagonal system of equations using the Thomas algorithm
 #'
-#' This function solves the PDE for a single species
-#' including diffusion. It uses an upwind difference scheme.
+#' This function solves the system Ax = d, where A is an NxN tridiagonal matrix.
 #'
-#' For more details  see the vignette
-#' \code{vignette("diffusion")}.
+#' @param a A numeric vector representing the sub-diagonal of A. Must have length N-1.
+#' @param b A numeric vector representing the main diagonal of A. Must have length N.
+#' @param c A numeric vector representing the super-diagonal of A. Must have length N-1.
+#' @param d A numeric vector representing the right-hand side vector. Must have length N.
+#' @return A numeric vector containing the solution x.
 #'
-#' @param params A MizerParams object
-#' @param species The species for which to solve the steady-state equation.
-#' @param dt Time step size.
-#' @param nsteps Number of time steps to compute.
-#' @return A matrix (time x size) with the solution of the PDE.
-#' @export
-project_diffusion <- function(params, species, dt = 0.05, nsteps = 200) {
-    params <- validParams(params)
-    species <- valid_species_arg(params, species = species,
-                                 error_on_empty = TRUE)
-    if (length(species) > 1) {
-        stop("Currently this species deals with a single species at a time.")
+solve_thomas <- function(a, b, c, d) {
+    n <- length(b)
+    if (n == 0) return(numeric(0))
+    if (n == 1) return(d[1] / b[1])
+
+    # Create copies to modify
+    c_prime <- numeric(n)
+    d_prime <- numeric(n)
+
+    # Forward elimination
+    c_prime[1] <- c[1] / b[1]
+    d_prime[1] <- d[1] / b[1]
+
+    for (i in 2:(n - 1)) {
+        m <- b[i] - a[i-1] * c_prime[i - 1]
+        c_prime[i] <- c[i] / m
+        d_prime[i] <- (d[i] - a[i-1] * d_prime[i - 1]) / m
     }
-    sps <- species_params(params)[species, ]
-    n <- sps$n
-    d_over_g <- sps$d_over_g
-    if (is.null(d_over_g)) {
-        stop("The species parameter d_over_g has not been created.")
+
+    d_prime[n] <- (d[n] - a[n-1] * d_prime[n - 1]) / (b[n] - a[n-1] * c_prime[n - 1])
+
+    # Backward substitution
+    x <- numeric(n)
+    x[n] <- d_prime[n]
+    for (i in (n - 1):1) {
+        x[i] <- d_prime[i] - c_prime[i] * x[i + 1]
     }
-    w <- w(params)
-    x <- log(w / w[1])
-    h <- x[2] - x[1]
-    N <- length(w) # Number of grid points
-    # TODO: select only the relevant sizes from w_min to w_max
 
-    # Get mortality and growth rates
-    mu <- getMort(params)[species, ]
-    g <- getEGrowth(params)[species, ]
-    emigration <- emigration(params)[species, ]
-
-    # Calculate diffusion rate as a power law
-    g_0 <- g[1] / w[1]^n
-    d_0 <- d_over_g * g_0
-    d <- d_0 * w^(n + 1)
-    # Transform to logarithmic space
-    dtilde <- d / w^2
-    dtilde_prime <- d_0 * (n - 1) * w^(n-1)
-    gtilde <- g / w - 0.5 * dtilde
-    etilde <- emigration * w
-    # Transform to standard form for diffusion term
-    ghat <- gtilde - dtilde_prime / 2
-
-    # Set initial abundance at smallest size
-    n_init <- initialN(params)[species, ] * w
-
-    # Solve the PDE
-    n_hist <- solve_diffusion_pde(dtilde, ghat, mu, etilde,
-                                  n_init = n_init, h = h,
-                                  dt = dt, nsteps = nsteps)
-    # Convert to density in w
-    n_hist <- sweep(n_hist, 2, w, "/")
-
-    return(n_hist)
+    return(x)
 }
 
-#' Function to solve a reaction-diffusion-advection PDE
+
+#' Numerically solve the PDE for fish abundance density
 #'
-#' This function uses the implicit Euler method to solve a PDE of the form:
-#' \deqn{\dot{n}(x,t) = (d(x) n'(x,t))'-(g(x)n(x,t))'-\mu(x)n(x,t)}
-#' @param d A vector of diffusion rates.
-#' @param g A vector of advection rates.
-#' @param mu A vector of reaction rates.
-#' @param n_init Initial condition for the solution.
-#' @param h Spatial step size.
-#' @param dt Time step size.
-#' @param nsteps Number of time steps to compute.
-#' @return A matrix (time x size) with the solution of the PDE.
-#' @export
-solve_diffusion_pde <- function(d, g, mu, emigration, n_init, h, dt, nsteps) {
-    # Because of the way we calculate the derivative of the diffusion we
-    # we can solve the equation only at interior points
-    N <- length(d) - 2
-    interior <- 2:(N + 1)
-    d_half <- (d[1:(N+1)] + d[2:(N+2)]) / 2
-    abs_g <- abs(g)
-    g_plus <- (abs_g + g) / 2
-    g_minus <- (abs_g - g) / 2
-    L <- (d_half[1:N] / 2) + h * g_plus[1:N]
-    U <- (d_half[2:(N+1)] / 2) + h * g_minus[3:(N+2)]
-    D <- -((d_half[2:(N+1)] + d_half[1:N]) / 2 +
-               h * abs_g[2:(N+1)] + h^2 * mu[2:(N+1)])
+#' Implements an unconditionally stable finite volume scheme (implicit Euler)
+#' with upwinding for advection.
+#'
+#' @param pars A list containing the model parameters: k, L_inf, d, m.
+#' @param u_initial A numeric vector for the initial condition u(l, 0).
+#' @param Delta_l The size step size (cm).
+#' @param t_max The maximum simulation time.
+#' @param Delta_t The time step size (years). Default is 0.05.
+#' @return A matrix where each column is the solution u(l, t) at a given time
+#'   step. Rows correspond to size points and columns to time points.
+#'
+solve_pde <- function(pars, u_initial,
+                      Delta_l = 1, t_max = 10, Delta_t = 0.05) {
 
-    # For implicit Euler: (I - dt*A) n^{k+1} = n^k - dt * emigration
-    D_new <- 1 - dt / h^2 * D
-    L_new <- -dt / h^2 * L
-    U_new <- -dt / h^2 * U
-    n0_vec <- numeric(N)
-    n0_vec[1] <- L_new[1] * n_init[1] # boundary term
+    # Set up Grids ----
 
-    n <- n_init[interior]
-    n_hist <- matrix(0, nrow = nsteps + 1, ncol = length(d))
-    n_hist[1, interior] <- n
-    # Keep constant egg abundance
-    n_hist[, 1] <- n_init[1]
+    N_l <- length(u_initial) # Number of Size cells
+    N_t <- ceiling(t_max / Delta_t) # Number of time steps
 
-    for (step in 1:nsteps) {
-        # Solve (I - dt*A) n_new = n - dt * emigration
-        b <- n - n0_vec - dt * emigration[interior]
-        n_new <- solve_double_sweep(U_new, L_new, D_new, b)
-        n_new[length(n_new)] <- 0  # Enforce boundary at large size
-        n <- n_new
-        n_hist[step + 1, interior] <- n
+    # Size grid (cell centres)
+    l_grid <- (1:N_l - 0.5) * Delta_l
+    # Size grid (cell interfaces, size N_l + 1)
+    l_interfaces <- (0:N_l) * Delta_l
+
+    # Initialize Solution Matrix ----
+    # Rows = space, Columns = time. Add 1 column for the initial condition.
+    u_solution <- matrix(0, nrow = N_l, ncol = N_t + 1)
+    u_solution[, 1] <- u_initial
+
+    # Pre-calculate Coefficients ----
+    # These coefficients are time-independent, so we can compute them once.
+
+    # Advection (v) and Diffusion (D) coefficients at interfaces
+    v <- pars$k * (pars$L_inf - l_interfaces) - pars$d / 2
+    D <- pars$d * l_interfaces / 2
+
+    v_plus <- pmax(v, 0)
+    v_minus <- pmin(v, 0)
+
+    # Reaction coefficient (mu) at cell centres.
+    mu <- pars$m / l_grid
+
+    # Construct the tridiagonal system matrix (A) ----
+    # We define A via its three diagonals: a_ (sub), b_ (main), c_ (super)
+
+    # Initialize diagonal vectors
+    a_ <- numeric(N_l - 1)
+    b_ <- numeric(N_l)
+    c_ <- numeric(N_l - 1)
+
+    # Pre-factors for convenience
+    c1 <- Delta_t / Delta_l
+    c2 <- Delta_t / (Delta_l^2)
+
+    # Fill the vectors for the interior points (i = 2 to N_l-1)
+    # R vector indices are 1-based, so this loop is for i from 2 to N_l-1
+    for (i in 2:(N_l - 1)) {
+        # A[i, i-1] depends on interface i
+        a_[i - 1] <- -c1 * v_plus[i] - c2 * D[i]
+        # A[i, i+1] depends on interface i+1
+        c_[i] <- c1 * v_minus[i + 1] - c2 * D[i + 1]
+        # A[i, i] depends on interfaces i and i+1
+        b_[i] <- 1 + Delta_t * mu[i] +
+            c1 * (v_plus[i + 1] - v_minus[i]) +
+            c2 * (D[i + 1] + D[i])
     }
-    return(n_hist)
+
+    # Apply Boundary Conditions ----
+
+    # -- At l_0 = 0 (i=1): No-Flux condition (J_{1/2} = 0) --
+    # The equation for u_1 has no u_0 term.
+    b_[1] <- 1 + Delta_t * mu[1] + c1 * (v_plus[2] + D[2] / Delta_l)
+    c_[1] <- c1 * (v_minus[2] - D[2] / Delta_l)
+
+    # -- At l_max (i=N_l): Dirichlet condition u(l_max, t) = 0 --
+    # This implies u_{N_l+1} = 0 in the flux J_{N_l+1/2}.
+    a_[N_l - 1] <- -c1 * v_plus[N_l] - c2 * D[N_l]
+    b_[N_l] <- 1 + Delta_t * mu[N_l] +
+        c1 * (v_plus[N_l + 1] - v_minus[N_l]) +
+        c2 * (D[N_l + 1] + D[N_l])
+
+
+    # Time-Stepping Loop ----
+    for (n in 1:N_t) {
+        # The right-hand side is the solution from the previous time step
+        d_rhs <- u_solution[, n]
+
+        # Solve the system A * u^{n+1} = u^n
+        u_solution[, n + 1] <- solve_thomas(a_, b_, c_, d_rhs)
+    }
+
+    # Return Result ----
+    return(u_solution)
+}
+
+#' Calculate Green's function for fish abundance PDE
+#'
+#' Solves the PDE with an initial condition where all individuals are in the
+#' smallest size class.
+#'
+#' @inheritParams solve_pde
+#' @param l_max The maximum size
+#' @return A matrix holding
+#'   the Green's function u(l, t). Rows correspond to size points and columns to
+#'   time points.
+#'
+getGreens <- function(pars, l_max, Delta_l = 1, t_max = 10, Delta_t = 0.05) {
+
+    # Set initial condition ----
+    u_initial <- numeric(N_l)
+    u_initial[1] <- 1
+
+    # Solve PDE ----
+    G <- solve_pde(pars, u_initial = u_initial,
+                   Delta_l = Delta_l, t_max = t_max, Delta_t = Delta_t)
+    return(G)
 }
