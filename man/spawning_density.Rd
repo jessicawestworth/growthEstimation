@@ -28,4 +28,3 @@ von Mises density on the unit circle of the year.
 spawning_density(numeric_dates = c(2020.45, 2020.50, 2020.55),
                  mu = 0.5, kappa = 4)
 }
-\keyword{internal}

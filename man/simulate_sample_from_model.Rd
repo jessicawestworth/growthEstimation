@@ -25,4 +25,3 @@ rownames(P) <- c("20", "30"); colnames(P) <- c("0", "1")
 survey_obs <- data.frame(Length = c(20, 20, 30, 30, 30))
 simulate_sample_from_model(P, survey_obs)
 }
-\keyword{internal}

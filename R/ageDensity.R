@@ -6,7 +6,7 @@
 #' @param mu Mean direction in radians.
 #' @param kappa Concentration parameter (higher means more concentrated).
 #' @return The probability density evaluated at `x`.
-#' @keywords internal
+#' @export
 #' @examples
 #' # Density at angle pi when centered at pi with moderate concentration
 #' von_mises_pdf(pi, mu = pi, kappa = 2)
@@ -27,7 +27,7 @@ von_mises_pdf <- function(x, mu, kappa) {
 #' @param kappa The concentration parameter for the spawning distribution.
 #' @return A numeric vector of relative spawning intensities with the same
 #'   length as `numeric_dates`.
-#' @keywords internal
+#' @export
 #' @examples
 #' # Peak at mid-year with moderate spread
 #' spawning_density(numeric_dates = c(2020.45, 2020.50, 2020.55),
@@ -49,10 +49,7 @@ spawning_density <- function(numeric_dates, mu, kappa) {
 #' @param annuli_date Ring formation day as fraction of a year in \[0, 1).
 #' @param annuli_min_age The minimum age (years) required to form the first ring.
 #' @return An integer vector with the calculated number of rings (K) for each age.
-#' @keywords internal
-#' @examples
-#' calculate_K(age_in_years = c(0.3, 1.2, 2.7), survey_date = 2023.5,
-#'             annuli_date = 0.25, annuli_min_age = 0.5)
+#' @export
 calculate_K <- function(age_in_years, survey_date, annuli_date, annuli_min_age) {
     sapply(age_in_years, function(age) {
         if (age < 0) return(0)
@@ -133,8 +130,12 @@ generate_model_predictions_for_date <- function(
 #'   columns `survey_date`, `Length`, `K`, and `count`.
 #' @inheritParams generate_model_predictions_for_date
 #' @return A data frame with the total NLL contribution for each Length-K bin.
+#' @export
 calculate_and_aggregate_likelihood <- function(surveys, G, a, l, mu, kappa,
                                                annuli_date, annuli_min_age) {
+    # Declare variables to avoid R CMD check warnings
+    Length <- K <- N <- Prob <- Expected <- NegLogLik <- SignedNegLogLik <-
+        TotalObserved <- TotalExpected <- TotalNegLogLik <- count <- NULL
 
     # Split the data frame by unique survey date
     surveys <- split(surveys, surveys$survey_date)
@@ -153,8 +154,8 @@ calculate_and_aggregate_likelihood <- function(surveys, G, a, l, mu, kappa,
 
         # 2. Get sample sizes per length for this survey
 
-        sample_sizes <- current_obs_df %>%
-            group_by(Length) %>%
+        sample_sizes <- current_obs_df |>
+            group_by(Length) |>
             summarise(N = sum(count, na.rm = TRUE), .groups = 'drop')
 
         # 3. Convert model probabilities to a long data frame for joining
@@ -164,13 +165,13 @@ calculate_and_aggregate_likelihood <- function(surveys, G, a, l, mu, kappa,
         P_model_df$K <- as.integer(P_model_df$K)
 
         # 4. Join all data together
-        likelihood_df <- current_obs_df %>%
-            left_join(sample_sizes, by = "Length") %>%
+        likelihood_df <- current_obs_df |>
+            left_join(sample_sizes, by = "Length") |>
             left_join(P_model_df, by = c("Length", "K"))
 
         # 5. Calculate the signed negative log-likelihood contribution
         epsilon <- 1e-9 # To prevent log(0)
-        likelihood_df <- likelihood_df %>%
+        likelihood_df <- likelihood_df |>
             mutate(
                 Expected = N * Prob,
                 NegLogLik = - (count * log(Prob + epsilon)),
@@ -183,14 +184,14 @@ calculate_and_aggregate_likelihood <- function(surveys, G, a, l, mu, kappa,
     # Aggregate contributions across all surveys
     all_contributions_df <- do.call(rbind, log_lik_contributions)
 
-    total_contributions <- all_contributions_df %>%
-        group_by(Length, K) %>%
+    total_contributions <- all_contributions_df |>
+        group_by(Length, K) |>
         summarise(
             TotalObserved = sum(count, na.rm = TRUE),
             TotalExpected = sum(Expected, na.rm = TRUE),
             TotalNegLogLik = sum(NegLogLik, na.rm = TRUE),
             .groups = 'drop'
-        ) %>%
+        ) |>
         mutate(
             # The final signed NLL is the total misfit, with the sign determined
             # by the overall difference between observed and expected counts.
@@ -207,7 +208,7 @@ calculate_and_aggregate_likelihood <- function(surveys, G, a, l, mu, kappa,
 #' @param P_model_K_given_l Matrix of predicted probabilities P(K | length).
 #' @param survey_obs A data frame for one survey with at least a `Length` column.
 #' @return An integer vector of simulated K values aligned with `survey_obs` rows.
-#' @keywords internal
+#' @export
 #' @examples
 #' set.seed(1)
 #' P <- matrix(c(0.7, 0.3, 0.2, 0.8), nrow = 2, byrow = TRUE)

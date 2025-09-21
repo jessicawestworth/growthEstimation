@@ -151,6 +151,7 @@ solve_pde <- function(pars, u_initial,
 getGreens <- function(pars, l_max, Delta_l = 1, t_max = 10, Delta_t = 0.05) {
 
     # Set initial condition ----
+    N_l <- ceiling(l_max / Delta_l)  # Number of size cells
     u_initial <- numeric(N_l)
     u_initial[1] <- 1
 

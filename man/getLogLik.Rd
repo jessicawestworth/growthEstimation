@@ -12,7 +12,9 @@ getLogLik(pars, surveys, Delta_l = 1, Delta_t = 0.05)
 \item{surveys}{A data frame with survey age-at-length observations with
 columns \code{survey_date}, \code{Length}, \code{K}, and \code{count}.}
 
-\item{dt}{Time step for the model simulation (years). Default is 0.05.}
+\item{Delta_l}{Width of size bins (cm). Default is 1.}
+
+\item{Delta_t}{Time step for the model simulation (years). Default is 0.05.}
 }
 \value{
 A data frame with

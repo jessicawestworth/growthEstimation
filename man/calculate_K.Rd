@@ -25,8 +25,3 @@ Age-to-Ring Mapping Function Calculate_K(a)
 Deterministically maps true age to the expected annuli count, given
 a survey date, an annual ring-formation day, and a minimum age threshold.
 }
-\examples{
-calculate_K(age_in_years = c(0.3, 1.2, 2.7), survey_date = 2023.5,
-            annuli_date = 0.25, annuli_min_age = 0.5)
-}
-\keyword{internal}

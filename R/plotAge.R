@@ -5,20 +5,22 @@
 #' @param contributions_df A data frame from calculate_and_aggregate_likelihood.
 #' @return A ggplot object.
 plot_log_likelihood <- function(contributions_df) {
+    # Declare variables to avoid R CMD check warnings
+    Length <- K <- TotalObserved <- TotalExpected <- SignedNegLogLik <- MeanK <- Source <- NULL
 
     # Convert factors to numeric for plotting
     contributions_df$Length <- as.numeric(as.character(contributions_df$Length))
     contributions_df$K <- as.numeric(as.character(contributions_df$K))
 
     # Calculate mean K lines ---
-    mean_lines_df <- contributions_df %>%
-        group_by(Length) %>%
+    mean_lines_df <- contributions_df |>
+        group_by(Length) |>
         summarise(
             # Weighted mean of K by the number of observed/expected fish
             Observed = sum(K * TotalObserved) / sum(TotalObserved),
             Model = sum(K * TotalExpected) / sum(TotalExpected),
             .groups = 'drop'
-        ) %>%
+        ) |>
         # Reshape the data for easy plotting with ggplot
         pivot_longer(
             cols = c("Observed", "Model"),
