@@ -25,3 +25,5 @@ Config/testthat/edition: 3
 Language: en-GB
 URL: https://github.com/gustavdelius/growthEstimation
 BugReports: https://github.com/gustavdelius/growthEstimation/issues
+Depends: 
+    R (>= 3.5)
