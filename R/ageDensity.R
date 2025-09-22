@@ -129,7 +129,10 @@ generate_model_predictions_for_date <- function(
 #' @param surveys A data frame with survey age-at-length observations with
 #'   columns `survey_date`, `Length`, `K`, and `count`.
 #' @inheritParams generate_model_predictions_for_date
-#' @return A data frame with the total NLL contribution for each Length-K bin.
+#' @return A data frame containing, for each observed Length-K bin in each
+#'   survey, the observed count, expected count under the model, model
+#'   probability, sample size, negative log-likelihood contribution, and signed
+#'   negative log-likelihood contribution.
 #' @export
 calculate_and_aggregate_likelihood <- function(surveys, G, a, l, mu, kappa,
                                                annuli_date, annuli_min_age) {

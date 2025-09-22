@@ -6,7 +6,10 @@
 #' @param Delta_l Width of size bins (cm). Default is 1.
 #' @param Delta_t Time step for the model simulation (years). Default is 0.05.
 #'
-#' @return A data frame with
+#' @return A data frame with, for each observed Length-K bin in each survey, the
+#'   observed count, expected count under the model, model probability, sample
+#'   size, negative log-likelihood contribution, and signed negative
+#'   log-likelihood contribution.
 #' @export
 getLogLik <- function(pars, surveys, Delta_l = 1, Delta_t = 0.05) {
     # Set up grids ----
