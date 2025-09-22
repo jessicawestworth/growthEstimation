@@ -7,11 +7,14 @@
 <url><loc>/articles/numerical_scheme.html</loc></url>
 <url><loc>/authors.html</loc></url>
 <url><loc>/index.html</loc></url>
+<url><loc>/reference/Cod_CS_age_at_length.html</loc></url>
+<url><loc>/reference/Cod_CS_pars.html</loc></url>
 <url><loc>/reference/calculate_K.html</loc></url>
 <url><loc>/reference/calculate_and_aggregate_likelihood.html</loc></url>
 <url><loc>/reference/generate_model_predictions_for_date.html</loc></url>
 <url><loc>/reference/getGreens.html</loc></url>
 <url><loc>/reference/getLogLik.html</loc></url>
+<url><loc>/reference/growthEstimation-package.html</loc></url>
 <url><loc>/reference/index.html</loc></url>
 <url><loc>/reference/length_rebinning_matrix.html</loc></url>
 <url><loc>/reference/plotAgeLikelihood.html</loc></url>
