@@ -5,20 +5,22 @@
 #' @param contributions_df A data frame from calculate_and_aggregate_likelihood.
 #' @return A ggplot object.
 plot_log_likelihood <- function(contributions_df) {
+    # Declare variables to avoid R CMD check warnings
+    Length <- K <- TotalObserved <- TotalExpected <- SignedNegLogLik <- MeanK <- Source <- NULL
 
     # Convert factors to numeric for plotting
     contributions_df$Length <- as.numeric(as.character(contributions_df$Length))
     contributions_df$K <- as.numeric(as.character(contributions_df$K))
 
     # Calculate mean K lines ---
-    mean_lines_df <- contributions_df %>%
-        group_by(Length) %>%
+    mean_lines_df <- contributions_df |>
+        group_by(Length) |>
         summarise(
             # Weighted mean of K by the number of observed/expected fish
             Observed = sum(K * TotalObserved) / sum(TotalObserved),
             Model = sum(K * TotalExpected) / sum(TotalExpected),
             .groups = 'drop'
-        ) %>%
+        ) |>
         # Reshape the data for easy plotting with ggplot
         pivot_longer(
             cols = c("Observed", "Model"),
@@ -37,7 +39,7 @@ plot_log_likelihood <- function(contributions_df) {
         geom_line(
             data = mean_lines_df,
             aes(y = MeanK, color = Source, linetype = Source),
-            size = 1
+            linewidth = 1
         ) +
         # --- Define scales and labels ---
         scale_fill_gradient2(
@@ -62,13 +64,7 @@ plot_log_likelihood <- function(contributions_df) {
             x = "Fish Length (cm)",
             y = "Annuli Count (K)"
         ) +
-        theme_minimal() +
-        theme(
-            panel.grid = element_blank(),
-            plot.title = element_text(hjust = 0.5, face = "bold"),
-            plot.subtitle = element_text(hjust = 0.5, size = 18),
-            legend.position = "right"
-        )
+        theme_minimal()
 
     return(p)
 }

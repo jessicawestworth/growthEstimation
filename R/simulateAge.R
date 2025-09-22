@@ -3,7 +3,8 @@
 #' @param pars A list containing the model parameters: k, L_inf, d, m.
 #' @param surveys A data frame with survey age-at-length observations with
 #'   columns `survey_date`, `Length`, `K`, and `count`.
-#' @param dt Time step for the model simulation (years). Default is 0.05.
+#' @param Delta_l Width of size bins (cm). Default is 1.
+#' @param Delta_t Time step for the model simulation (years). Default is 0.05.
 #'
 #' @return A data frame with
 #' @export
