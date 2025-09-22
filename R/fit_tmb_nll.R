@@ -83,19 +83,10 @@ fit_tmb_nll <- function(
         annuli_min_age = as.numeric(start[["annuli_min_age"]])
     )
 
-    # Compile and load
-    src <- system.file(package = utils::packageName(), "src", "nll.cpp")
-    if (identical(src, "")) src <- file.path("src", "nll.cpp")
-    so <- sub("\\.cpp$", ".so", src)
-    if (compile || !file.exists(so)) {
-        TMB::compile(src)
-    }
-    dyn.load(so)
-
     obj <- TMB::MakeADFun(
         data = tmb_data,
         parameters = tmb_parameters,
-        DLL = "nll",
+        DLL = "growthEstimation",
         silent = TRUE
     )
 
@@ -116,5 +107,6 @@ fit_tmb_nll <- function(
         data = tmb_data
     )
 }
+
 
 
