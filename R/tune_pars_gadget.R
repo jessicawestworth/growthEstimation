@@ -28,25 +28,27 @@ tune_pars <- function(pars, age_at_length) {
 	numeric_pars <- pars[vapply(pars, function(x) is.numeric(x) && length(x) == 1, logical(1))]
 	if (length(numeric_pars) == 0) stop("No scalar numeric parameters found in `pars`.")
 
-	# Helper to pick slider ranges based on name and value
+	# Helpers for slider rules
+	is_fixed_01 <- function(name) grepl("^(annuli_date|annuli_min_age|spawning_mu)$", name)
+	is_dynamic  <- function(name) grepl("^(k|L_inf|d|m|spawning_kappa)$", name)
+	compute_dynamic_range <- function(value_num) {
+		minv <- max(0, value_num / 2)
+		maxv <- max(1, value_num * 2)
+		step <- max((maxv - minv) / 200, 1e-4)
+		list(min = minv, max = maxv, step = step)
+	}
+
+	# Create a slider per parameter according to the simplified rules
 	make_slider <- function(name, value) {
 		value_num <- as.numeric(value)
-		# Heuristics for common parameters
-		if (grepl("^(spawning_mu|annuli_date)$", name)) {
+		if (is_fixed_01(name)) {
 			minv <- 0; maxv <- 1; step <- 0.001
-		} else if (grepl("^(spawning_kappa)$", name)) {
-			minv <- 0; maxv <- max(5, value_num * 3); step <- 0.1
-		} else if (grepl("^(annuli_min_age)$", name)) {
-			minv <- 0; maxv <- max(2, value_num * 3); step <- 0.01
-		} else if (grepl("^L_inf$", name)) {
-			minv <- max(0, value_num * 0.25);
-			maxv <- max(minv + 1, value_num * 2)
-			step <- max(0.1, round((maxv - minv) / 200, 2))
+		} else if (is_dynamic(name)) {
+			rng <- compute_dynamic_range(value_num)
+			minv <- rng$min; maxv <- rng$max; step <- rng$step
 		} else {
-			# Generic non-negative numeric
-			minv <- 0
-			maxv <- if (value_num > 0) value_num * 3 else 1
-			step <- max(10^floor(log10(max(1e-6, maxv))/ -2), 1e-4)
+			# Default for any other parameter: fixed [0, 1]
+			minv <- 0; maxv <- 1; step <- 0.001
 		}
 		shiny::sliderInput(inputId = name, label = name,
 						 min = minv, max = maxv, value = value_num, step = step)
@@ -57,7 +59,8 @@ tune_pars <- function(pars, age_at_length) {
 		shiny::sidebarLayout(
 			shiny::sidebarPanel(
 				shiny::tagList(
-					lapply(names(numeric_pars), function(nm) make_slider(nm, numeric_pars[[nm]]))
+					lapply(names(numeric_pars), function(nm) make_slider(nm, numeric_pars[[nm]])),
+					shiny::actionButton("done", "Close and return parameters")
 				)
 			),
 			shiny::mainPanel(
@@ -75,19 +78,35 @@ tune_pars <- function(pars, age_at_length) {
 			updated
 		})
 
+		# Dynamically update ranges for selected parameters when their values change
+		for (nm in names(numeric_pars)) {
+			if (is_dynamic(nm)) {
+				local({
+					this_nm <- nm
+					shiny::observeEvent(input[[this_nm]], {
+						value_num <- as.numeric(input[[this_nm]])
+						rng <- compute_dynamic_range(value_num)
+						new_value <- min(max(value_num, rng$min), rng$max)
+						shiny::updateSliderInput(session, this_nm, min = rng$min, max = rng$max, step = rng$step, value = new_value)
+					}, ignoreInit = TRUE)
+				})
+			}
+		}
+
 		output$lik_plot <- shiny::renderPlot({
 			plotAgeLikelihood(current_pars(), age_at_length)
 		})
 
-		# Return updated parameters when session ends
-		shiny::onSessionEnded(function() {
-			invisible(current_pars())
+		# Close gadget and return updated parameters when clicking the button
+		shiny::observeEvent(input$done, {
+			shiny::stopApp(current_pars())
 		})
 	}
 
 	# Always run in the system browser
 	app <- shiny::shinyApp(ui, server)
-	shiny::runApp(app, launch.browser = TRUE)
+	res <- shiny::runApp(app, launch.browser = TRUE)
+	invisible(res)
 }
 
 
