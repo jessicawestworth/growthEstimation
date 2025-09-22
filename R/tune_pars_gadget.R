@@ -94,7 +94,8 @@ tune_pars <- function(pars, age_at_length) {
 		}
 
 		output$lik_plot <- shiny::renderPlot({
-			plotAgeLikelihood(current_pars(), age_at_length)
+		    plotAgeLikelihood(current_pars(), age_at_length) +
+            theme_minimal(base_size = 16)
 		})
 
 		# Close gadget and return updated parameters when clicking the button
