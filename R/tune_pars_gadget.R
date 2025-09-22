@@ -85,13 +85,9 @@ tune_pars <- function(pars, age_at_length) {
 		})
 	}
 
-	# Run as gadget so it appears as a small window in RStudio, but fall back to app
+	# Always run in the system browser
 	app <- shiny::shinyApp(ui, server)
-	if (requireNamespace("miniUI", quietly = TRUE)) {
-		shiny::runGadget(app, viewer = shiny::dialogViewer("Tune parameters", width = 1100, height = 800))
-	} else {
-		shiny::runApp(app)
-	}
+	shiny::runApp(app, launch.browser = TRUE)
 }
 
 
