@@ -14,14 +14,16 @@ Depends:
 Imports:
     dplyr,
     ggplot2,
-    tidyr
+    tidyr,
+    shiny
 Suggests: 
     knitr,
     quarto,
     rmarkdown,
     roxygen2,
     testthat (>= 3.0.0),
-    spelling
+    spelling,
+    miniUI
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
