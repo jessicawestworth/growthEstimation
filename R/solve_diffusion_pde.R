@@ -51,7 +51,7 @@ solve_thomas <- function(a, b, c, d) {
 #' @param t_max The maximum simulation time.
 #' @param Delta_t The time step size (years). Default is 0.05.
 #' @return A matrix where each column is the solution u(l, t) at a given time
-#'   step. Rows correspond to size points and columns to time points.
+#'   step. Columns correspond to size points and rows to time points.
 #'
 solve_pde <- function(pars, u_initial,
                       Delta_l = 1, t_max = 10, Delta_t = 0.05) {
@@ -68,8 +68,8 @@ solve_pde <- function(pars, u_initial,
 
     # Initialize Solution Matrix ----
     # Rows = space, Columns = time. Add 1 column for the initial condition.
-    u_solution <- matrix(0, nrow = N_l, ncol = N_t + 1)
-    u_solution[, 1] <- u_initial
+    u_solution <- matrix(0, nrow = N_t + 1, ncol = N_l)
+    u_solution[1, ] <- u_initial
 
     # Pre-calculate Coefficients ----
     # These coefficients are time-independent, so we can compute them once.
@@ -127,10 +127,10 @@ solve_pde <- function(pars, u_initial,
     # Time-Stepping Loop ----
     for (n in 1:N_t) {
         # The right-hand side is the solution from the previous time step
-        d_rhs <- u_solution[, n]
+        d_rhs <- u_solution[n, ]
 
         # Solve the system A * u^{n+1} = u^n
-        u_solution[, n + 1] <- solve_thomas(a_, b_, c_, d_rhs)
+        u_solution[n + 1, ] <- solve_thomas(a_, b_, c_, d_rhs)
     }
 
     # Return Result ----

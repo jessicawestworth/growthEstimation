@@ -7,3 +7,22 @@ vignette: >
 ---
 
 I still need to write this vignette.
+
+```{r}
+library(growthEstimation)
+pars <- list(
+    k = 0.1,
+    L_inf = 110,
+    d = 1,
+    m = 1,
+    annuli_date = 0,
+    annuli_min_age = 0,
+    spawning_mu = 0.4,
+    spawning_kappa = 10
+)
+
+age_at_length <- Cod_CS_age_at_length
+
+plotAgeLikelihood(pars, age_at_length)
+```
+

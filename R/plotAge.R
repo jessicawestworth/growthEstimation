@@ -39,7 +39,7 @@ plot_log_likelihood <- function(contributions_df) {
         geom_line(
             data = mean_lines_df,
             aes(y = MeanK, color = Source, linetype = Source),
-            size = 1
+            linewidth = 1
         ) +
         # --- Define scales and labels ---
         scale_fill_gradient2(
@@ -64,13 +64,7 @@ plot_log_likelihood <- function(contributions_df) {
             x = "Fish Length (cm)",
             y = "Annuli Count (K)"
         ) +
-        theme_minimal() +
-        theme(
-            panel.grid = element_blank(),
-            plot.title = element_text(hjust = 0.5, face = "bold"),
-            plot.subtitle = element_text(hjust = 0.5, size = 18),
-            legend.position = "right"
-        )
+        theme_minimal()
 
     return(p)
 }
