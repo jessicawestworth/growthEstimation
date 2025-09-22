@@ -1,4 +1,5 @@
 #include <TMB.hpp>
+#include <cmath>
 
 template<class Type>
 Type two_pi() { return Type(2.0) * M_PI; }
@@ -7,9 +8,7 @@ Type two_pi() { return Type(2.0) * M_PI; }
 template<class Type>
 Type von_mises_pdf(Type x, Type mu, Type kappa) {
   // density = exp(kappa * cos(x-mu)) / (2*pi*I0(kappa))
-  // R::bessel_i with expon.scaled=TRUE returns I0(kappa) * exp(-abs(kappa))
-  Type I0_scaled = R::bessel_i(asDouble(kappa), 0, 1);
-  Type I0 = I0_scaled * exp(kappa);
+  Type I0 = besselI(kappa, Type(0));
   return exp(kappa * CppAD::cos(x - mu)) / (two_pi<Type>() * I0);
 }
 
@@ -18,7 +17,7 @@ template<class Type>
 int calculate_K_for_age(Type age, Type survey_date, Type annuli_date, Type annuli_min_age) {
   if (age < Type(0)) return 0;
   Type birth_date = survey_date - age;
-  Type birth_year = CppAD::floor(birth_date);
+  Type birth_year = Type(std::floor(asDouble(birth_date)));
   Type next_ring_date = birth_year + annuli_date;
   if (next_ring_date <= birth_date) {
     next_ring_date = (birth_year + Type(1)) + annuli_date;
@@ -146,7 +145,7 @@ Type objective_function<Type>::operator() () {
   for (int s = 0; s < nSurvey; ++s) {
     for (int n = 0; n <= N_t; ++n) {
       Type birth_date = survey_dates(s) - a_grid(n);
-      Type day_fraction = birth_date - CppAD::floor(birth_date);
+      Type day_fraction = birth_date - Type(std::floor(asDouble(birth_date)));
       Type day_rad = day_fraction * two_pi<Type>();
       spawn_w(n, s) = von_mises_pdf(day_rad, mu_rad, spawning_kappa);
     }
