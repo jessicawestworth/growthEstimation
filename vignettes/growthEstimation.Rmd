@@ -26,3 +26,7 @@ age_at_length <- Cod_CS_age_at_length
 plotAgeLikelihood(pars, age_at_length)
 ```
 
+To start tuning parameters, run the following code. A Shiny app will open
+```{r, eval=FALSE}
+tune_pars(pars, age_at_length)
+```
