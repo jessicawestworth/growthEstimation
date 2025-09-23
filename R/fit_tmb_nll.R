@@ -3,29 +3,22 @@
 #' Optimizes k, L_inf, d, m, and annuli_min_age using nlminb().
 #' Spawning parameters and annuli_date are treated as data.
 #'
+#' @param pars List of parameters
 #' @param surveys Data frame with columns survey_date (numeric), Length, K, count.
 #' @param Delta_l Numeric size step (cm), default 1.
 #' @param Delta_t Numeric time step (years), default 0.05.
-#' @param spawning_mu Spawning mean date in [0,1).
-#' @param spawning_kappa Spawning concentration parameter.
-#' @param annuli_date Annual ring formation date in [0,1).
-#' @param start Named numeric vector for parameters c(k, L_inf, d, m, annuli_min_age).
-#' @param lower Named numeric vector of lower bounds (same names).
-#' @param upper Named numeric vector of upper bounds (same names).
-#' @param compile Logical, compile the TMB template if needed.
-#' @return A list with optimizer result, sdreport, obj, and data used.
+#' @param lower Named numeric vector of lower bounds.
+#' @param upper Named numeric vector of upper bounds.
+#' @return A list with updated `pars`, optimizer result, sdreport, obj, and data
+#'   used.
 #' @export
 fit_tmb_nll <- function(
+    pars,
     surveys,
     Delta_l = 1,
     Delta_t = 0.05,
-    spawning_mu,
-    spawning_kappa,
-    annuli_date,
-    start,
     lower = c(k = 1e-6, L_inf = 1e-3, d = 1e-6, m = 1e-6, annuli_min_age = 0.0),
-    upper = c(k = Inf, L_inf = Inf, d = Inf, m = Inf, annuli_min_age = 5.0),
-    compile = TRUE
+    upper = c(k = Inf, L_inf = Inf, d = Inf, m = Inf, annuli_min_age = 5.0)
 ) {
     stopifnot(all(c("survey_date", "Length", "K", "count") %in% names(surveys)))
     surveys <- as.data.frame(surveys)
@@ -67,21 +60,16 @@ fit_tmb_nll <- function(
         survey_dates = as.numeric(survey_levels),
         l_grid = as.numeric(l_grid),
         a_grid = as.numeric(a_grid),
-        spawning_mu = as.numeric(spawning_mu),
-        spawning_kappa = as.numeric(spawning_kappa),
-        annuli_date = as.numeric(annuli_date),
+        spawning_mu = as.numeric(pars$spawning_mu),
+        spawning_kappa = as.numeric(pars$spawning_kappa),
+        annuli_date = as.numeric(pars$annuli_date),
         Delta_l = as.numeric(Delta_l),
         Delta_t = as.numeric(Delta_t),
         log_eps = log(1e-9)
     )
 
-    tmb_parameters <- list(
-        k = as.numeric(start[["k"]]),
-        L_inf = as.numeric(start[["L_inf"]]),
-        d = as.numeric(start[["d"]]),
-        m = as.numeric(start[["m"]]),
-        annuli_min_age = as.numeric(start[["annuli_min_age"]])
-    )
+    parameter_names <- c("k", "L_inf", "d", "m", "annuli_min_age")
+    tmb_parameters <- pars[parameter_names]
 
     obj <- TMB::MakeADFun(
         data = tmb_data,
@@ -94,13 +82,18 @@ fit_tmb_nll <- function(
         start = obj$par,
         objective = obj$fn,
         gradient = obj$gr,
-        lower = as.numeric(lower[names(tmb_parameters)]),
-        upper = as.numeric(upper[names(tmb_parameters)])
+        lower = as.numeric(lower[parameter_names]),
+        upper = as.numeric(upper[parameter_names])
     )
+
+    # Update parameters in `pars`
+    par <- opt$par
+    pars[names(par)] <- par[names(par)]
 
     sdr <- try(TMB::sdreport(obj), silent = TRUE)
 
     list(
+        pars = pars,
         opt = opt,
         sdreport = sdr,
         obj = obj,
