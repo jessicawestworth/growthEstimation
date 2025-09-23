@@ -83,7 +83,7 @@ calculate_K <- function(age_in_years, survey_date, annuli_date, annuli_min_age) 
 #' @param kappa Spawning concentration parameter.
 #' @param annuli_date Ring formation day as fraction of a year in \[0, 1).
 #' @param annuli_min_age Minimum age (years) at which the first ring can form.
-#' @return A matrix of probabilities P(K|l) with rows named by `l` and columns
+#' @return A matrix of probabilities P(K|l) with rows named by `Length` and columns
 #'   by `K`.
 #' @export
 #' @examples
@@ -105,8 +105,7 @@ generate_model_predictions_for_date <- function(
     max_K <- max(k_for_each_age)
     k_bins <- 0:max_K
     N_model <- matrix(0, nrow = length(l), ncol = length(k_bins))
-    rownames(N_model) <- l
-    colnames(N_model) <- k_bins
+    dimnames(N_model) <- list(Length = l, K = k_bins)
 
     for (k_val in k_bins) {
         age_indices <- which(k_for_each_age == k_val)
@@ -129,7 +128,10 @@ generate_model_predictions_for_date <- function(
 #' @param surveys A data frame with survey age-at-length observations with
 #'   columns `survey_date`, `Length`, `K`, and `count`.
 #' @inheritParams generate_model_predictions_for_date
-#' @return A data frame with the total NLL contribution for each Length-K bin.
+#' @return A data frame containing, for each observed Length-K bin in each
+#'   survey, the observed count, expected count under the model, model
+#'   probability, sample size, negative log-likelihood contribution, and signed
+#'   negative log-likelihood contribution.
 #' @export
 calculate_and_aggregate_likelihood <- function(surveys, G, a, l, mu, kappa,
                                                annuli_date, annuli_min_age) {
@@ -159,10 +161,7 @@ calculate_and_aggregate_likelihood <- function(surveys, G, a, l, mu, kappa,
             summarise(N = sum(count, na.rm = TRUE), .groups = 'drop')
 
         # 3. Convert model probabilities to a long data frame for joining
-        P_model_df <- as.data.frame.table(P_model)
-        colnames(P_model_df) <- c("Length", "K", "Prob")
-        P_model_df$Length <- as.integer(P_model_df$Length)
-        P_model_df$K <- as.integer(P_model_df$K)
+        P_model_df <- melt(P_model, value.name = "Prob")
 
         # 4. Join all data together
         likelihood_df <- current_obs_df |>

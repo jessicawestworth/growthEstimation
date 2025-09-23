@@ -6,7 +6,10 @@
 #' @param Delta_l Width of size bins (cm). Default is 1.
 #' @param Delta_t Time step for the model simulation (years). Default is 0.05.
 #'
-#' @return A data frame with
+#' @return A data frame with, for each observed Length-K bin in each survey, the
+#'   observed count, expected count under the model, model probability, sample
+#'   size, negative log-likelihood contribution, and signed negative
+#'   log-likelihood contribution.
 #' @export
 getLogLik <- function(pars, surveys, Delta_l = 1, Delta_t = 0.05) {
     # Set up grids ----
@@ -17,8 +20,8 @@ getLogLik <- function(pars, surveys, Delta_l = 1, Delta_t = 0.05) {
     l_grid <- (1:N_l - 0.5) * Delta_l # Size grid (cell centres)
     t_grid <- (1:(N_t + 1)) * Delta_t   # Time grid (including time = 0)
 
-    G <- getGreens(pars, l_max = l_max, Delta_l = 1,
-                   t_max = t_max, Delta_t = 0.05)
+    G <- getGreens(pars, l_max = l_max, Delta_l = Delta_l,
+                   t_max = t_max, Delta_t = Delta_t)
 
     calculate_and_aggregate_likelihood(
         surveys, G = G, a = t_grid, l = l_grid,

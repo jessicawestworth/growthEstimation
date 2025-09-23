@@ -1,0 +1,48 @@
+test_that("TMB nll matches NLL computed from getLogLik()", {
+    # Synthetic minimal dataset with two surveys and a few observations
+    surveys <- data.frame(
+        survey_date = c(2020.25, 2020.25, 2021.10, 2021.10, 2021.10),
+        Length = c(20L, 21L, 20L, 21L, 22L),
+        K = c(0L, 1L, 0L, 1L, 1L),
+        count = c(10, 5, 7, 8, 3)
+    )
+
+    # Common discretisation to keep both paths consistent
+    Delta_l <- 1
+    Delta_t <- 0.05
+
+    # Choose fixed parameters (not optimizing) to make the comparison deterministic
+    pars <- list(
+        k = 0.5,
+        L_inf = 80,
+        d = 0.2,
+        m = 0.05,
+        spawning_mu = 0.4,
+        spawning_kappa = 3,
+        annuli_date = 0.25,
+        annuli_min_age = 0.5
+    )
+
+    # 1) NLL via getLogLik(): sum of NegLogLik contributions
+    ll_df <- getLogLik(pars, surveys, Delta_l = Delta_l, Delta_t = Delta_t)
+    nll_r <- sum(ll_df$TotalNegLogLik, na.rm = TRUE)
+
+    # 2) NLL via TMB objective function in nll.cpp using identical grids and data
+    tmb <- fit_tmb_nll(
+        surveys = surveys,
+        Delta_l = Delta_l,
+        Delta_t = Delta_t,
+        spawning_mu = pars$spawning_mu,
+        spawning_kappa = pars$spawning_kappa,
+        annuli_date = pars$annuli_date,
+        start = c(k = pars$k, L_inf = pars$L_inf, d = pars$d, m = pars$m, annuli_min_age = pars$annuli_min_age),
+        compile = TRUE
+    )
+
+    # Evaluate the TMB objective at the specified parameters (already set as start)
+    nll_tmb <- as.numeric(tmb$obj$fn(tmb$obj$par))
+
+    # Compare within a small tolerance because of numerical details and epsilon terms
+    expect_true(is.finite(nll_r) && is.finite(nll_tmb))
+    expect_equal(nll_tmb, nll_r, tolerance = 1e-6)
+})
