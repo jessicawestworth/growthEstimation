@@ -11,6 +11,7 @@
 <url><loc>/reference/Cod_CS_pars.html</loc></url>
 <url><loc>/reference/calculate_K.html</loc></url>
 <url><loc>/reference/calculate_and_aggregate_likelihood.html</loc></url>
+<url><loc>/reference/fit_tmb_nll.html</loc></url>
 <url><loc>/reference/generate_model_predictions_for_date.html</loc></url>
 <url><loc>/reference/getGreens.html</loc></url>
 <url><loc>/reference/getLogLik.html</loc></url>
@@ -19,10 +20,12 @@
 <url><loc>/reference/length_rebinning_matrix.html</loc></url>
 <url><loc>/reference/plotAgeLikelihood.html</loc></url>
 <url><loc>/reference/plot_log_likelihood.html</loc></url>
+<url><loc>/reference/reexports.html</loc></url>
 <url><loc>/reference/simulate_sample_from_model.html</loc></url>
 <url><loc>/reference/solve_pde.html</loc></url>
 <url><loc>/reference/solve_thomas.html</loc></url>
 <url><loc>/reference/spawning_density.html</loc></url>
+<url><loc>/reference/tune_pars.html</loc></url>
 <url><loc>/reference/von_mises_pdf.html</loc></url>
 </urlset>
 

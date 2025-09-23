@@ -26,3 +26,19 @@ age_at_length <- Cod_CS_age_at_length
 plotAgeLikelihood(pars, age_at_length)
 ```
 
+To start tuning parameters, run the following code. A Shiny app will open
+```{r, eval=FALSE}
+tune_pars(pars, age_at_length)
+```
+
+You can automatically tune the parameters with
+```{r}
+fit <- fit_tmb_nll(
+    pars,
+    surveys = age_at_length,
+    Delta_l = 1,
+    Delta_t = 0.05)
+
+pars <- fit$pars
+plotAgeLikelihood(pars, age_at_length)
+```

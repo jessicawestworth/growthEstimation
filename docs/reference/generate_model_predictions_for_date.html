@@ -15,7 +15,7 @@ is observed with K annuli."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">growthEstimation</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -104,7 +104,7 @@ is observed with K annuli.</p>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A matrix of probabilities P(K|l) with rows named by <code>l</code> and columns
+    <p>A matrix of probabilities P(K|l) with rows named by <code>Length</code> and columns
 by <code>K</code>.</p>
     </div>
 
@@ -116,10 +116,11 @@ by <code>K</code>.</p>
 <span class="r-in"><span><span class="va">G</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">sin</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/outer.html" class="external-link">outer</a></span><span class="op">(</span><span class="va">a</span>, <span class="va">l</span>, <span class="st">"+"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">a</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">generate_model_predictions_for_date</span><span class="op">(</span><span class="fl">2023.5</span>, <span class="va">G</span>, <span class="va">a</span>, <span class="va">l</span>, mu <span class="op">=</span> <span class="fl">0.5</span>, kappa <span class="op">=</span> <span class="fl">3</span>,</span></span>
 <span class="r-in"><span>                                    annuli_date <span class="op">=</span> <span class="fl">0.25</span>, annuli_min_age <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            0          1           2         3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10 0.5281034 0.04898685 0.015036502 0.4078732</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 20 0.5015673 0.02652226 0.007001495 0.4649090</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 30 0.4806103 0.01506286 0.017937671 0.4863892</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       K</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Length         0          1           2         3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     10 0.5281034 0.04898685 0.015036502 0.4078732</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     20 0.5015673 0.02652226 0.007001495 0.4649090</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     30 0.4806103 0.01506286 0.017937671 0.4863892</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

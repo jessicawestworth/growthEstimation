@@ -12,7 +12,7 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../deps/jquery-3.6.1/jquery-3.6.1.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+</script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
@@ -26,7 +26,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">growthEstimation</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -90,9 +90,22 @@
 <span><span class="va">age_at_length</span> <span class="op">&lt;-</span> <span class="va">Cod_CS_age_at_length</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/plotAgeLikelihood.html">plotAgeLikelihood</a></span><span class="op">(</span><span class="va">pars</span>, <span class="va">age_at_length</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Warning: Removed 5 rows containing missing values or values outside the scale range</span></span>
-<span><span class="co">## (`geom_line()`).</span></span></code></pre>
 <p><img src="growthEstimation_files/figure-html/unnamed-chunk-1-1.png" width="700"></p>
+<p>To start tuning parameters, run the following code. A Shiny app will
+open</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/tune_pars.html">tune_pars</a></span><span class="op">(</span><span class="va">pars</span>, <span class="va">age_at_length</span><span class="op">)</span></span></code></pre></div>
+<p>You can automatically tune the parameters with</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fit_tmb_nll.html">fit_tmb_nll</a></span><span class="op">(</span></span>
+<span>    <span class="va">pars</span>,</span>
+<span>    surveys <span class="op">=</span> <span class="va">age_at_length</span>,</span>
+<span>    Delta_l <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>    Delta_t <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">pars</span> <span class="op">&lt;-</span> <span class="va">fit</span><span class="op">$</span><span class="va">pars</span></span>
+<span><span class="fu"><a href="../reference/plotAgeLikelihood.html">plotAgeLikelihood</a></span><span class="op">(</span><span class="va">pars</span>, <span class="va">age_at_length</span><span class="op">)</span></span></code></pre></div>
+<p><img src="growthEstimation_files/figure-html/unnamed-chunk-3-1.png" width="700"></p>
   </main>
 </div>
 
