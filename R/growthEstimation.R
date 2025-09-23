@@ -5,3 +5,7 @@
 #' @useDynLib growthEstimation
 #' @importFrom TMB MakeADFun compile dynlib
 "_PACKAGE"
+
+#' @importFrom reshape2 melt
+#' @export
+reshape2::melt
