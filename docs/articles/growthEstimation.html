@@ -26,7 +26,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">growthEstimation</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -90,9 +90,11 @@
 <span><span class="va">age_at_length</span> <span class="op">&lt;-</span> <span class="va">Cod_CS_age_at_length</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/plotAgeLikelihood.html">plotAgeLikelihood</a></span><span class="op">(</span><span class="va">pars</span>, <span class="va">age_at_length</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Warning: Removed 5 rows containing missing values or values outside the scale range</span></span>
-<span><span class="co">## (`geom_line()`).</span></span></code></pre>
 <p><img src="growthEstimation_files/figure-html/unnamed-chunk-1-1.png" width="700"></p>
+<p>To start tuning parameters, run the following code. A Shiny app will
+open</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/tune_pars.html">tune_pars</a></span><span class="op">(</span><span class="va">pars</span>, <span class="va">age_at_length</span><span class="op">)</span></span></code></pre></div>
   </main>
 </div>
 

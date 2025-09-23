@@ -17,7 +17,10 @@ columns \code{survey_date}, \code{Length}, \code{K}, and \code{count}.}
 \item{Delta_t}{Time step for the model simulation (years). Default is 0.05.}
 }
 \value{
-A data frame with
+A data frame with, for each observed Length-K bin in each survey, the
+observed count, expected count under the model, model probability, sample
+size, negative log-likelihood contribution, and signed negative
+log-likelihood contribution.
 }
 \description{
 Get log likelihood of age observations

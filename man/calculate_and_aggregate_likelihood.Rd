@@ -34,7 +34,10 @@ columns \code{survey_date}, \code{Length}, \code{K}, and \code{count}.}
 \item{annuli_min_age}{Minimum age (years) at which the first ring can form.}
 }
 \value{
-A data frame with the total NLL contribution for each Length-K bin.
+A data frame containing, for each observed Length-K bin in each
+survey, the observed count, expected count under the model, model
+probability, sample size, negative log-likelihood contribution, and signed
+negative log-likelihood contribution.
 }
 \description{
 Loops through surveys, calculates signed NLL for each, and aggregates the
