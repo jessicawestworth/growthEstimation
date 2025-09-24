@@ -58,10 +58,10 @@ plotDensity2D(u)
 plotDensity3D(u)
 ```
 
-If we constrain the mortality coefficient to be at least 20 we get:
+If we constrain the mortality coefficient to be at least 30 we get:
 ```{r}
 fit <- fit_tmb_nll(pars, surveys = age_at_length,
-                   lower = c(m = 20))
+                   lower = c(m = 25))
 
 pars <- fit$pars
 plotAgeLikelihood(pars, age_at_length)
@@ -71,7 +71,18 @@ plotAgeLikelihood(pars, age_at_length)
 pars[parameter_names]
 ```
 
+This leads to a more realistic time evolution of a yearly cohort:
 ```{r}
 u <- getNumberDensity(pars, l_max = 200, t_max = 15)
 plotDensity2D(u)
 ```
+```{r}
+plotDensity3D(u, l_min = 20)
+```
+
+The solution including all yearly cohorts looks as follows:
+```{r}
+u_periodic <- getPeriodicNumberDensity(pars, l_max = 200, t_max = 3)
+plotDensity3D(u_periodic, l_min = 20)
+```
+

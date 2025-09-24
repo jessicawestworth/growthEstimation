@@ -15,10 +15,14 @@
 <url><loc>/reference/generate_model_predictions_for_date.html</loc></url>
 <url><loc>/reference/getGreens.html</loc></url>
 <url><loc>/reference/getLogLik.html</loc></url>
+<url><loc>/reference/getNumberDensity.html</loc></url>
+<url><loc>/reference/getPeriodicNumberDensity.html</loc></url>
 <url><loc>/reference/growthEstimation-package.html</loc></url>
 <url><loc>/reference/index.html</loc></url>
 <url><loc>/reference/length_rebinning_matrix.html</loc></url>
 <url><loc>/reference/plotAgeLikelihood.html</loc></url>
+<url><loc>/reference/plotDensity2D.html</loc></url>
+<url><loc>/reference/plotDensity3D.html</loc></url>
 <url><loc>/reference/plot_log_likelihood.html</loc></url>
 <url><loc>/reference/reexports.html</loc></url>
 <url><loc>/reference/simulate_sample_from_model.html</loc></url>

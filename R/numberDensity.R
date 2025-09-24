@@ -128,9 +128,9 @@ getPeriodicNumberDensity <- function(pars, l_max, Delta_l = 1,
 
     max_attempts <- 3
     attempt <- 1
-    while (!all(G[nrow(G), ] < 1e-6)) {
+    while (!all(G[nrow(G), ] < 1e-4)) {
         if (attempt >= max_attempts) {
-            stop("Cohorts live for too long (density at max age > 1e-6 after ", greens_t_max, 
+            stop("Cohorts live for too long (density at max age > 1e-4 after ", greens_t_max, 
                  " years). Please increase the mortality rate (pars$m) or check your parameters.")
         }
         greens_t_max <- greens_t_max * 2
