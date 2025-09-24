@@ -101,13 +101,13 @@ plotDensity2D <- function(u, Delta_l = 1, Delta_t = 0.05, l_offset = 0, years = 
     df <- do.call(rbind, df_list)
 
     # Plot
-    p <- ggplot2::ggplot(df, ggplot2::aes(x = rlang::.data$size,
-                                          y = rlang::.data$u,
-                                          colour = factor(rlang::.data$year),
-                                          group = rlang::.data$year)) +
-        ggplot2::geom_line() +
-        ggplot2::labs(x = "Size l", y = "u(l, t)", colour = "Year") +
-        ggplot2::theme_minimal()
+    p <- ggplot(df, aes(x = size,
+                        y = u,
+                        colour = factor(year),
+                        group = year)) +
+        geom_line() +
+        labs(x = "Size l", y = "u(l, t)", colour = "Year") +
+        theme_minimal()
 
     return(p)
 }
