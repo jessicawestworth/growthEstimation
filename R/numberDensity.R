@@ -49,6 +49,7 @@ spawning_density <- function(numeric_dates, mu, kappa) {
 #' @param single_cohort Logical; if TRUE (default) include only individuals
 #'   born within the first year.
 #' @return A matrix holding the number density u(t,l). Rows correspond to time and columns to length.
+#' @export
 getNumberDensity <- function(pars, l_max, Delta_l = 1,
                              t_max = 10, Delta_t = 0.05,
                              single_cohort = TRUE) {
