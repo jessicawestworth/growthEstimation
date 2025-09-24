@@ -33,18 +33,21 @@ tune_pars(pars, age_at_length)
 
 You can automatically tune the parameters with
 ```{r}
-fit <- fit_tmb_nll(
-    pars,
-    surveys = age_at_length,
-    Delta_l = 1,
-    Delta_t = 0.05)
+fit <- fit_tmb_nll(pars, surveys = age_at_length)
 
 pars <- fit$pars
 plotAgeLikelihood(pars, age_at_length)
 ```
 
 The parameters appear to fit the age-at-size data, but the mortality and diffusion
-coefficients are too low. This leads to the following time evolution of a yearly
+coefficients are too low. The estimated parameters are:
+```{r}
+parameter_names <- c("k", "L_inf", "d", "m", "annuli_min_age")
+pars[parameter_names]
+```
+
+
+This leads to the following time evolution of a yearly
 cohort:
 ```{r}
 u <- getNumberDensity(pars, l_max = 200, t_max = 15)
@@ -55,3 +58,20 @@ plotDensity2D(u)
 plotDensity3D(u)
 ```
 
+If we constrain the mortality coefficient to be at least 20 we get:
+```{r}
+fit <- fit_tmb_nll(pars, surveys = age_at_length,
+                   lower = c(m = 20))
+
+pars <- fit$pars
+plotAgeLikelihood(pars, age_at_length)
+```
+
+```{r}
+pars[parameter_names]
+```
+
+```{r}
+u <- getNumberDensity(pars, l_max = 200, t_max = 15)
+plotDensity2D(u)
+```
