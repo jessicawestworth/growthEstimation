@@ -29,14 +29,10 @@ test_that("TMB nll matches NLL computed from getLogLik()", {
 
     # 2) NLL via TMB objective function in nll.cpp using identical grids and data
     tmb <- fit_tmb_nll(
+        pars = pars,
         surveys = surveys,
         Delta_l = Delta_l,
-        Delta_t = Delta_t,
-        spawning_mu = pars$spawning_mu,
-        spawning_kappa = pars$spawning_kappa,
-        annuli_date = pars$annuli_date,
-        start = c(k = pars$k, L_inf = pars$L_inf, d = pars$d, m = pars$m, annuli_min_age = pars$annuli_min_age),
-        compile = TRUE
+        Delta_t = Delta_t
     )
 
     # Evaluate the TMB objective at the specified parameters (already set as start)
