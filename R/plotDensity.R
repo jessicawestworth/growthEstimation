@@ -7,9 +7,10 @@ utils::globalVariables(c("size", "u", "year"))
 #'   size).
 #' @param Delta_l Size step size used to compute `u`.
 #' @param Delta_t Time step size used to compute `u`.
+#' @param l_min Size at which the plot should start.
 #' @param ... Further arguments passed to `plotly::add_surface()`.
 #'
-#' @return A Plotly htmlwidget, invisibly.
+#' @return A Plotly plot
 #' @export
 #' @examples
 #' \dontrun{
@@ -17,8 +18,8 @@ utils::globalVariables(c("size", "u", "year"))
 #' u <- getDensity(pars, l_max = 100, Delta_l = 1, t_max = 10, Delta_t = 0.1)
 #' plotDensity3D(u, Delta_l = 1, Delta_t = 0.1)
 #' }
-plotDensity3D <- function(u, Delta_l = 1, Delta_t = 0.05, l_offset = 0, ...) {
-    if (!is.matrix(u)) stop("u must be a numeric matrixu.")
+plotDensity3D <- function(u, Delta_l = 1, Delta_t = 0.05, l_min = 5, ...) {
+    if (!is.matrix(u)) stop("u must be a numeric matrix.")
 
     n_time <- nrow(u)
     n_size <- ncol(u)
@@ -27,11 +28,21 @@ plotDensity3D <- function(u, Delta_l = 1, Delta_t = 0.05, l_offset = 0, ...) {
     l <- (1:n_size - 0.5) * Delta_l
     t <- (0:(n_time - 1)) * Delta_t
 
+    # Truncate data to include only times >= t_min
+    size_indices <- which(l >= l_min)
+    if (length(size_indices) == 0) {
+        stop("No data available for l >= l_min. Try reducing l_min.")
+    }
+
+    # Apply truncation to u and t
+    u_truncated <- u[,size_indices , drop = FALSE]
+    l_truncated <- l[size_indices]
+
     # Interactive 3D using plotly
-    p <- plotly::plot_ly(x = l, y = t, z = t(u))
+    p <- plotly::plot_ly(x = t, y = l_truncated, z = t(u_truncated))
     p <- plotly::add_surface(p, ...)
-    p <- plotly::layout(p, scene = list(xaxis = list(title = "Size l"),
-                                        yaxis = list(title = "Time t"),
+    p <- plotly::layout(p, scene = list(xaxis = list(title = "Time t"),
+                                        yaxis = list(title = "Size l"),
                                         zaxis = list(title = "u(l, t)")))
     return(p)
 }
@@ -56,7 +67,7 @@ plotDensity3D <- function(u, Delta_l = 1, Delta_t = 0.05, l_offset = 0, ...) {
 #' @export
 #' @examples
 #' \dontrun{
-#' pars <- list(k = 0.5, L_inf = 100, d = 1, m = 0.2)
+#' pars <- list(k = 0.5, L_inf = 100, d = 0.01, m = 0.01)
 #' u <- getDensity(pars, l_max = 100, Delta_l = 1, t_max = 10, Delta_t = 0.1)
 #' plotDensity2D(u, Delta_l = 1, Delta_t = 0.1)
 #' }

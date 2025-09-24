@@ -18,8 +18,8 @@ solve_pde(pars, u_initial, Delta_l = 1, t_max = 10, Delta_t = 0.05)
 \item{Delta_t}{The time step size (years). Default is 0.05.}
 }
 \value{
-A matrix where each column is the solution u(l, t) at a given time
-step. Columns correspond to size points and rows to time points.
+A matrix where each column is the solution u(t,l) at a given time
+step. Rows correspond to time and columns to length.
 }
 \description{
 Implements an unconditionally stable finite volume scheme (implicit Euler)

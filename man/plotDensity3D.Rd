@@ -4,7 +4,7 @@
 \alias{plotDensity3D}
 \title{Plot density function as an interactive 3D surface}
 \usage{
-plotDensity3D(u, Delta_l = 1, Delta_t = 0.05, l_offset = 0, ...)
+plotDensity3D(u, Delta_l = 1, Delta_t = 0.05, l_min = 5, ...)
 }
 \arguments{
 \item{u}{A numeric matrix containing the density (rows = time, columns =
@@ -14,10 +14,12 @@ size).}
 
 \item{Delta_t}{Time step size used to compute \code{u}.}
 
+\item{l_min}{Size at which the plot should start.}
+
 \item{...}{Further arguments passed to \code{plotly::add_surface()}.}
 }
 \value{
-A Plotly htmlwidget, invisibly.
+A Plotly plot
 }
 \description{
 Plot density function as an interactive 3D surface
