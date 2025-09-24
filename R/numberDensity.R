@@ -46,9 +46,12 @@ spawning_density <- function(numeric_dates, mu, kappa) {
 #' spawning density from `spawning_density()` to produce the number density
 #' as a function of length and time.
 #' @inheritParams getGreens
+#' @param single_cohort Logical; if TRUE (default) include only individuals
+#'   born within the first year.
 #' @return A matrix holding the number density u(t,l). Rows correspond to time and columns to length.
 getNumberDensity <- function(pars, l_max, Delta_l = 1,
-                             t_max = 10, Delta_t = 0.05) {
+                             t_max = 10, Delta_t = 0.05,
+                             single_cohort = TRUE) {
     G <- getGreens(pars, l_max = l_max, Delta_l = Delta_l,
                    t_max = t_max, Delta_t = Delta_t)
     # G has rows = time (age) 0..N_t and cols = size classes
@@ -67,7 +70,20 @@ getNumberDensity <- function(pars, l_max, Delta_l = 1,
     # For each time t_n, convolve S(t_n - a) with G(a, l) over a in [0, t_n]
     for (n in 0:N_t) {
         # ages considered up to current time
-        idx <- 0:n
+        idx_all <- 0:n
+        if (single_cohort) {
+            # keep only ages in (t-1, t] (restrict to >=0 automatically)
+            t_n <- a_grid[n + 1L]
+            lower <- max(0, t_n - 1)
+            ages <- a_grid[idx_all + 1L]
+            keep <- (ages > lower) & (ages <= t_n)
+            idx <- idx_all[keep]
+        } else {
+            idx <- idx_all
+        }
+        if (length(idx) == 0L) {
+            next
+        }
         # birth dates as numeric years (fractional part encodes day-of-year)
         birth_dates <- a_grid[n + 1L] - a_grid[idx + 1L]
         w <- spawning_density(birth_dates, mu = mu, kappa = kappa)

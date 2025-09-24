@@ -4,7 +4,14 @@
 \alias{getNumberDensity}
 \title{Get number density as a function of length and time}
 \usage{
-getNumberDensity(pars, l_max, Delta_l = 1, t_max = 10, Delta_t = 0.05)
+getNumberDensity(
+  pars,
+  l_max,
+  Delta_l = 1,
+  t_max = 10,
+  Delta_t = 0.05,
+  single_cohort = TRUE
+)
 }
 \arguments{
 \item{pars}{A list containing the model parameters: k, L_inf, d, m.}
@@ -16,6 +23,9 @@ getNumberDensity(pars, l_max, Delta_l = 1, t_max = 10, Delta_t = 0.05)
 \item{t_max}{The maximum simulation time.}
 
 \item{Delta_t}{The time step size (years). Default is 0.05.}
+
+\item{single_cohort}{Logical; if TRUE (default) include only individuals
+born within the first year.}
 }
 \value{
 A matrix holding the number density u(t,l). Rows correspond to time and columns to length.
