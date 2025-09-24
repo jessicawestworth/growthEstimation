@@ -42,3 +42,16 @@ fit <- fit_tmb_nll(
 pars <- fit$pars
 plotAgeLikelihood(pars, age_at_length)
 ```
+
+The parameters appear to fit the age-at-size data, but the mortality and diffusion
+coefficients are too low. This leads to the following time evolution of a yearly
+cohort:
+```{r}
+u <- getNumberDensity(pars, l_max = 200, t_max = 15)
+plotDensity2D(u)
+```
+
+```{r}
+plotDensity3D(u)
+```
+
