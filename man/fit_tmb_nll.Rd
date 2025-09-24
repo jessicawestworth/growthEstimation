@@ -5,41 +5,30 @@
 \title{Fit growth parameters by minimizing the negative log likelihood with TMB}
 \usage{
 fit_tmb_nll(
+  pars,
   surveys,
   Delta_l = 1,
   Delta_t = 0.05,
-  spawning_mu,
-  spawning_kappa,
-  annuli_date,
-  start,
-  lower = c(k = 1e-06, L_inf = 0.001, d = 1e-06, m = 1e-06, annuli_min_age = 0),
-  upper = c(k = Inf, L_inf = Inf, d = Inf, m = Inf, annuli_min_age = 5),
-  compile = TRUE
+  lower = c(),
+  upper = c()
 )
 }
 \arguments{
+\item{pars}{List of parameters}
+
 \item{surveys}{Data frame with columns survey_date (numeric), Length, K, count.}
 
 \item{Delta_l}{Numeric size step (cm), default 1.}
 
 \item{Delta_t}{Numeric time step (years), default 0.05.}
 
-\item{spawning_mu}{Spawning mean date in [0,1).}
+\item{lower}{Named numeric vector of lower bounds.}
 
-\item{spawning_kappa}{Spawning concentration parameter.}
-
-\item{annuli_date}{Annual ring formation date in [0,1).}
-
-\item{start}{Named numeric vector for parameters c(k, L_inf, d, m, annuli_min_age).}
-
-\item{lower}{Named numeric vector of lower bounds (same names).}
-
-\item{upper}{Named numeric vector of upper bounds (same names).}
-
-\item{compile}{Logical, compile the TMB template if needed.}
+\item{upper}{Named numeric vector of upper bounds.}
 }
 \value{
-A list with optimizer result, sdreport, obj, and data used.
+A list with updated \code{pars}, optimizer result, sdreport, obj, and data
+used.
 }
 \description{
 Optimizes k, L_inf, d, m, and annuli_min_age using nlminb().
