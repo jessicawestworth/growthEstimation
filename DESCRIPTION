@@ -16,6 +16,7 @@ Imports:
     ggplot2,
     tidyr,
     shiny,
+    plotly,
     TMB
 LinkingTo:
     TMB, RcppEigen
