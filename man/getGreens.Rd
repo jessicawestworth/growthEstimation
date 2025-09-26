@@ -18,9 +18,8 @@ getGreens(pars, l_max, Delta_l = 1, t_max = 10, Delta_t = 0.05)
 \item{Delta_t}{The time step size (years). Default is 0.05.}
 }
 \value{
-A matrix holding
-the Green's function u(l, t). Rows correspond to size points and columns to
-time points.
+A matrix holding the Green's function G(t,l). Rows correspond to
+time and columns to length.
 }
 \description{
 Solves the PDE with an initial condition where all individuals are in the

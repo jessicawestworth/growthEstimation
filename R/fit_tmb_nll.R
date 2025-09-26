@@ -17,8 +17,8 @@ fit_tmb_nll <- function(
     surveys,
     Delta_l = 1,
     Delta_t = 0.05,
-    lower = c(k = 1e-6, L_inf = 1e-3, d = 1e-6, m = 1e-6, annuli_min_age = 0.0),
-    upper = c(k = Inf, L_inf = Inf, d = Inf, m = Inf, annuli_min_age = 5.0)
+    lower = c(),
+    upper = c()
 ) {
     stopifnot(all(c("survey_date", "Length", "K", "count") %in% names(surveys)))
     surveys <- as.data.frame(surveys)
@@ -71,6 +71,22 @@ fit_tmb_nll <- function(
     parameter_names <- c("k", "L_inf", "d", "m", "annuli_min_age")
     tmb_parameters <- pars[parameter_names]
 
+    lower_limit = c(k = 1e-6, L_inf = 1e-3, d = 1e-6, m = 1e-6,
+                      annuli_min_age = 0.0)
+    if (!all(names(lower) %in% parameter_names)) {
+        bad_names <- setdiff(names(lower), parameter_names)
+        stop("You cannot specify a lower limit on: ", paste(bad_names, collapse = ", "))
+    }
+    lower_limit[names(lower)] <- lower[names(lower)]
+
+    upper_limit = c(k = Inf, L_inf = Inf, d = Inf, m = Inf,
+                    annuli_min_age = 5.0)
+    if (!all(names(upper) %in% parameter_names)) {
+        bad_names <- setdiff(names(upper), parameter_names)
+        stop("You cannot specify an upper limit on: ", paste(bad_names, collapse = ", "))
+    }
+    upper_limit[names(upper)] <- upper[names(upper)]
+
     obj <- TMB::MakeADFun(
         data = tmb_data,
         parameters = tmb_parameters,
@@ -82,8 +98,8 @@ fit_tmb_nll <- function(
         start = obj$par,
         objective = obj$fn,
         gradient = obj$gr,
-        lower = as.numeric(lower[parameter_names]),
-        upper = as.numeric(upper[parameter_names])
+        lower = as.numeric(lower_limit[parameter_names]),
+        upper = as.numeric(upper_limit[parameter_names])
     )
 
     # Update parameters in `pars`

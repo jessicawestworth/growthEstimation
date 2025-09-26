@@ -31,6 +31,9 @@ plot_log_likelihood <- function(contributions_df) {
     # Determine symmetric color scale limits for the heatmap
     max_abs_val <- max(abs(contributions_df$SignedNegLogLik), na.rm = TRUE)
 
+    # Calculate total negative log likelihood
+    total_nll <- sum(contributions_df$TotalNegLogLik, na.rm = TRUE)
+    
     # Create the plot
     p <- ggplot(contributions_df, aes(x = Length, y = K)) +
         # Heatmap layer for the misfit
@@ -60,7 +63,7 @@ plot_log_likelihood <- function(contributions_df) {
         ) +
         labs(
             title = "Model Fit Diagnostic",
-            subtitle = "Color shows direction (Blue: Obs > Exp, Red: Obs < Exp). Intensity shows magnitude of misfit.",
+            subtitle = paste0("Color shows direction (Blue: Obs > Exp, Red: Obs < Exp). Intensity shows magnitude of misfit.\nTotal NLL = ", sprintf("%.2f", total_nll)),
             x = "Fish Length (cm)",
             y = "Annuli Count (K)"
         ) +

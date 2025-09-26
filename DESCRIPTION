@@ -2,10 +2,12 @@ Package: growthEstimation
 Type: Package
 Title: Estimating growth rate parameters from age-at-size data
 Version: 0.1.2
-Authors@R: 
-    person("Gustav", "Delius", , "gustav.delius@york.ac.uk", role = c("cre", "aut", "cph"),
-           comment = c(ORCID = "0000-0003-4092-8228"))
-Maintainer: Gustav Delius <gustav.delius@york.ac.uk>
+Authors@R: c(person("Jessica", "Westworth", email="jew20@st-andrews.ac.uk",
+                    role = c("cre", "aut")),
+             person("Gustav", "Delius", email="gustav.delius@york.ac.uk",
+                    role = c("aut"),
+                    comment = c(ORCID = "0000-0003-4092-8228")))
+Maintainer: Jessica Westworth <jew20@st-andrews.ac.uk>
 Description: Takes stochasticity in growth rates into account when estimating
     growth rates.
 License: GPL-3
@@ -16,6 +18,7 @@ Imports:
     ggplot2,
     tidyr,
     shiny,
+    plotly,
     TMB
 LinkingTo:
     TMB, RcppEigen

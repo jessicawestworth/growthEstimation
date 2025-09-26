@@ -50,8 +50,8 @@ solve_thomas <- function(a, b, c, d) {
 #' @param Delta_l The size step size (cm).
 #' @param t_max The maximum simulation time.
 #' @param Delta_t The time step size (years). Default is 0.05.
-#' @return A matrix where each column is the solution u(l, t) at a given time
-#'   step. Columns correspond to size points and rows to time points.
+#' @return A matrix where each column is the solution u(t,l) at a given time
+#'   step. Rows correspond to time and columns to length.
 #'
 solve_pde <- function(pars, u_initial,
                       Delta_l = 1, t_max = 10, Delta_t = 0.05) {
@@ -144,10 +144,9 @@ solve_pde <- function(pars, u_initial,
 #'
 #' @inheritParams solve_pde
 #' @param l_max The maximum size
-#' @return A matrix holding
-#'   the Green's function u(l, t). Rows correspond to size points and columns to
-#'   time points.
-#'
+#' @return A matrix holding the Green's function G(t,l). Rows correspond to
+#'   time and columns to length.
+#' @export
 getGreens <- function(pars, l_max, Delta_l = 1, t_max = 10, Delta_t = 0.05) {
 
     # Set initial condition ----
