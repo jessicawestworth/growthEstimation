@@ -1,6 +1,19 @@
+#' Example length frequency data for Cod in the Celtic Sea.
+#'
+#' @format A data frame with 377 rows and 3 columns. The columns are:
+#' \describe{
+#'   \item{survey_date}{The within-year date of the survey (decimal year)}
+#'   \item{Length}{Length (cm)}
+#'   \item{count}{Number of fish observed with given length and annuli}
+#' }
+#' @name Cod_CS_length_freq
+#' @docType data
+#' @keywords datasets
+"Cod_CS_length_freq"
+
 #' Example age_at_length data for Cod in the Celtic Sea.
 #'
-#' @format A data frame with 329 rows and 4 columns. The columns ae:
+#' @format A data frame with 329 rows and 4 columns. The columns are:
 #' \describe{
 #'   \item{survey_date}{The within-year date of the survey (decimal year)}
 #'   \item{Length}{Length (cm)}
@@ -17,10 +30,13 @@
 #' @format A named list of scalar numeric parameters used by the growth and
 #' age-at-length likelihood functions. Typical entries are:
 #' \describe{
-#'   \item{k}{Growth rate parameter}
+#'   \item{k}{Growth rate parameter for von Bertalanffy growth}
 #'   \item{L_inf}{Asymptotic length}
 #'   \item{d}{Diffusion/variability parameter}
 #'   \item{m}{Mortality parameter}
+#'   \item{r}{Constant growth rate parameter for small sizes}
+#'   \item{vB_min_size}{Size at which growth becomes von Bertalanffy (cm). Used to
+#'     switch between constant growth (below) and von Bertalanffy growth (above).}
 #'   \item{spawning_mu}{Mean spawning date within the year (decimal year [0,1))}
 #'   \item{spawning_kappa}{Concentration of spawning timing (Von Mises kappa)}
 #'   \item{annuli_date}{Within-year date when annuli are laid (decimal year)}
