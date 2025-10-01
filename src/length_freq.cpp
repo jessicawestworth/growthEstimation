@@ -61,7 +61,6 @@ Type objective_function<Type>::operator() () {
     DATA_VECTOR(a_grid);
 
     // Spawning and observation constants
-    DATA_SCALAR(spawning_mu);
     DATA_SCALAR(spawning_kappa);
 
     // Numerical constants
@@ -77,6 +76,7 @@ Type objective_function<Type>::operator() () {
     PARAMETER(ratio); // only used for sigmoidal gear
 
     //life history parameters
+    PARAMETER(spawning_mu);
     PARAMETER(k);
     PARAMETER(L_inf);
     PARAMETER(d);

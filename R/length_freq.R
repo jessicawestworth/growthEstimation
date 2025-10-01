@@ -12,9 +12,10 @@
 #' @return A list with updated `pars`, optimizer result, sdreport, obj, and data
 #'   used.
 #' @export
-fit_tmb_nll <- function(
+fit_tmb_length_freq <- function(
         pars,
         surveys,
+        gear_type = 0,
         Delta_l = 1,
         Delta_t = 0.05,
         lower = c(),
@@ -73,7 +74,6 @@ fit_tmb_nll <- function(
         survey_dates = as.numeric(survey_levels),
         l_grid = as.numeric(l_grid),
         a_grid = as.numeric(a_grid),
-        spawning_mu = as.numeric(pars$spawning_mu),
         spawning_kappa = as.numeric(pars$spawning_kappa),
         annuli_date = as.numeric(pars$annuli_date),
         Delta_l = as.numeric(Delta_l),
@@ -82,17 +82,17 @@ fit_tmb_nll <- function(
         gear_type = gear_type
     )
 
-    parameter_names <- c("k", "L_inf", "d", "m", "l50", "ratio")
+    parameter_names <- c("k", "L_inf", "d", "m", "l50", "ratio", "spawning_mu")
     tmb_parameters <- pars[parameter_names]
 
-    lower_limit = c(k = 1e-6, L_inf = 1e-3, d = 1e-6, m = 1e-6, l50 = 1e-3, ratio = 1e-3)
+    lower_limit = c(k = 1e-6, L_inf = 1e-3, d = 1e-6, m = 3, l50 = 1e-3, ratio = 1e-3, spawning_mu= 0)
     if (!all(names(lower) %in% parameter_names)) {
         bad_names <- setdiff(names(lower), parameter_names)
         stop("You cannot specify a lower limit on: ", paste(bad_names, collapse = ", "))
     }
     lower_limit[names(lower)] <- lower[names(lower)]
 
-    upper_limit = c(k = Inf, L_inf = Inf, d = Inf, m = Inf, l50 = Inf, ratio = Inf)
+    upper_limit = c(k = Inf, L_inf = Inf, d = Inf, m = Inf, l50 = Inf, ratio = Inf, spawning_mu= 1)
     if (!all(names(upper) %in% parameter_names)) {
         bad_names <- setdiff(names(upper), parameter_names)
         stop("You cannot specify an upper limit on: ", paste(bad_names, collapse = ", "))
@@ -102,7 +102,7 @@ fit_tmb_nll <- function(
     obj <- TMB::MakeADFun(
         data = tmb_data,
         parameters = tmb_parameters,
-        DLL = "length_freq",
+        DLL = "growthEstimation",
         silent = TRUE
     )
 
